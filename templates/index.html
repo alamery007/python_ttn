@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Форма для заполнения ТТН</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #e3f3fa;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            text-decoration: underline;
+        }
+        form {
+            max-width: 600px;
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin: 10px 0 5px;
+        }
+        select, input[type="text"], input[type="date"], input[type="number"] {
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+        }
+        .button-group button {
+            width: 48%;
+        }
+        .section {
+            margin: 10px 0;
+        }
+        fieldset {
+            border: 2px dashed #68adf7;
+            border-radius: 10px;
+            padding: 10px;
+            background-color: #f0f8ff;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .input-row {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+        .input-row > div {
+            flex: 1;
+            margin-right: 10px;
+        }
+        .input-row > div:last-child {
+            margin-right: 0;
+        }
+        /* Новые стили для контейнера секций */
+        #sectionsContainer {
+            border: 2px dashed #68adf7; /* Доступный стиль рамки */
+            padding: 10px;
+            margin-top: 15px; /* Отступ сверху */
+            background-color: #f0f8ff; /* Светлый фон для улучшения видимости */
+            display: none; /* Скрываем контейнер по умолчанию */
+        }
+    </style>
+</head>
+<body>
+<fieldset style="border: 2px dashed black; padding: 10px; margin: 15px 0; border-radius: 5px; background-color: #f9f9f9;">
+    <h1>Заполните Товарно-Транспортную Накладную</h1>
+    <form method="POST">
+            <div class="input-row">
+                <div class="input-group">
+                    <label for="date">Выбери дату:</label>
+                    <input type="date" id="date" name="date" required>
+                </div>
+                <div class="input-group">
+                    <label for="ttn">Введите номер ТТН:</label>
+                    <input type="text" id="ttn" name="ttn" required>
+                </div>
+                <div class="input-group">
+                    <label for="series">Введите серию:</label>
+                    <input type="text" id="series" name="series" required>
+                </div>
+            </div>
+
+        <label for="delivery_method">Выберите способ доставки:</label>
+        <select id="delivery_method" name="delivery_method">
+            <option value="">Выберите способ доставки</option>
+            <option value="доставка1">Доставка</option>
+            <option value="доставка2">Самовывоз</option>
+        </select>
+
+        <label for="raw_material">Выберите сырье:</label>
+        <select id="raw_material" name="raw_material">
+            <option value="">Выберите сырье</option>
+            <option value="сырье1">Молоко сырое коровье</option>
+            <option value="сырье2">Молоко обезжиренное коровье</option>
+        </select>
+
+        <label for="drivers">Выберите водителя:</label>
+        <select id="drivers" name="drivers" required>
+            <option value="">Выберите водителя</option>
+            {% for driver in drivers %}
+                <option value="{{ driver[0] }}">{{ driver[1] }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="transport">Выберите транспорт:</label>
+        <select id="transport" name="transport">
+            <option value="">Выберите транспорт</option>
+            {% for t in transports %}
+                <option value="{{ t }}">{{ t }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="trailer">Выберите прицеп:</label>
+        <select id="trailer" name="trailer" onchange="updateSections()">
+            <option value="">Выберите прицеп</option>
+        </select>
+
+        <div id="sectionsContainer"></div> <!-- Контейнер для секций -->
+
+        <label for="senders">Выберите организацию отправителя:</label>
+        <select id="senders" name="senders" required>
+            <option value="">Выберите отправителя</option>
+            {% for sender in senders %}
+                <option value="{{ sender[0] }}">{{ sender[1] }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="addresses">Выберите адрес отправителя:</label>
+        <select id="addresses" name="addresses" required>
+            <option value="">Выберите адрес</option>
+        </select>
+
+        <label for="loading_point">Выберите пункт погрузки:</label>
+        <select id="loading_point" name="loading_point">
+            <option value="">Выберите пункт погрузки</option>
+            <option value="пункт1">Пункт 1</option>
+            <option value="пункт2">Пункт 2</option>
+        </select>
+
+        <label for="laboratory">Выберите лаборанта:</label>
+        <select id="laboratory" name="laboratory">
+            <option value="">Выберите лаборанта</option>
+            <option value="лаборант1">Лаборант 1</option>
+            <option value="лаборант2">Лаборант 2</option>
+        </select>
+
+        <label for="recipient">Выберите грузополучателя:</label>
+        <select id="recipient" name="recipient">
+            <option value="">Выберите грузополучателя</option>
+            <option value="грузополучатель1">Грузополучатель 1</option>
+            <option value="грузополучатель2">Грузополучатель 2</option>
+        </select>
+
+        <label for="physical_weight">Введите физический вес:</label>
+        <input type="text" id="physical_weight" name="physical_weight" required>
+
+        <div class="button-group">
+            <button type="button" onclick="clearForm()">Очистить</button>
+            <button type="submit">Скачать</button>
+        </div>
+
+        <button type="button" class="whatsapp-button" onclick="alert('Будет позже!')">Отправить на WhatsApp</button>
+    </form>
+
+    <script>
+        let trailers = [];
+
+        function loadTrailers() {
+            $.ajax({
+                url: '/trailers',
+                type: 'GET',
+                success: function(data) {
+                    trailers = data;
+                    const trailerSelect = $('#trailer');
+                    trailerSelect.empty();
+                    trailerSelect.append('<option value="">Выберите прицеп</option>');
+                    trailers.forEach(trailer => {
+                        trailerSelect.append(`<option value="${trailer.id}">${trailer.number}</option>`);
+                    });
+                    trailerSelect.select2({ tags: true });
+                },
+                error: function() {
+                    alert('Ошибка при загрузке данных о прицепах');
+                }
+            });
+        }
+
+        function updateSections() {
+            const select = document.getElementById('trailer');
+            const selectedTrailerId = select.value;
+            const selectedTrailer = trailers.find(trailer => trailer.id == selectedTrailerId);
+            const container = document.getElementById('sectionsContainer');
+            container.innerHTML = '';
+
+            if (selectedTrailer) {
+                container.style.display = 'block'; // Показываем контейнер при выборе прицепа
+                selectedTrailer.sections.forEach((weight, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'section';
+
+                    const label = document.createElement('label');
+                    label.innerText = `Секция ${index + 1}: `;
+                    div.appendChild(label);
+
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.name = `section_weight_${index + 1}`;
+                    input.placeholder = weight !== null ? `Максимальный вес: ${weight}` : 'Секции в прицепе нет';
+                    if (weight === null) {
+                        input.disabled = true;
+                    }
+
+                    input.addEventListener('input', function() {
+                        const value = parseFloat(this.value);
+                        if (!isNaN(value)) {
+                            this.style.color = (value > weight) ? 'red' : (value < weight) ? 'blue' : 'green';
+                        } else {
+                            this.style.color = 'black';
+                        }
+                    });
+
+                    div.appendChild(input);
+                    container.appendChild(div);
+                });
+            } else {
+                container.style.display = 'none'; // Скрываем контейнер, если прицеп не выбран
+            }
+        }
+
+        $(document).ready(function() {
+            loadTrailers();
+
+            $('#senders').change(function() {
+                const senderId = $(this).val();
+                if (senderId) {
+                    $.ajax({
+                        url: '/get_addresses/' + senderId,
+                        type: 'GET',
+                        success: function(data) {
+                            $('#addresses').empty();
+                            $.each(data, function(i, address) {
+                                $('#addresses').append('<option value="' + address[0] + '">' + address[1] + '</option>');
+                            });
+                        }
+                    });
+                } else {
+                    $('#addresses').empty();
+                }
+            });
+
+            $('#delivery_method, #raw_material, #drivers, #transport, #loading_point, #laboratory, #recipient').select2({ tags: true });
+        });
+
+        function clearForm() {
+            document.querySelector('form').reset();
+            $('#senders, #addresses').empty();
+            $('#delivery_method, #raw_material, #drivers, #transport, #loading_point, #laboratory, #recipient').val('').trigger('change');
+            $('#trailer').val('').trigger('change');
+            $('#sectionsContainer').empty().hide(); // Очищаем и скрываем контейнер секций
+        }
+    </script>
+</fieldset>
+</body>
+</html>
