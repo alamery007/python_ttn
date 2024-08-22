@@ -238,6 +238,14 @@
                     if (weight === null) {
                         input.disabled = true;
                     }
+                    const buttonSet = document.createElement('button');
+                    buttonSet.type = 'button';
+                    buttonSet.innerText = 'Заполнить до макс';
+                    buttonSet.style.marginLeft = '0px';
+                    buttonSet.addEventListener('click', function() {
+                        input.value = weight; // Заполняем инпут максимальным весом
+                        input.dispatchEvent(new Event('input')); // Обновляем цвет
+                    });
 
                     input.addEventListener('input', function() {
                         const value = parseFloat(this.value);
@@ -249,6 +257,7 @@
                     });
 
                     div.appendChild(input);
+                    div.appendChild(buttonSet); // Кнопка для заполнения
                     container.appendChild(div);
                 });
             } else {
