@@ -57,6 +57,7 @@ def index():
         trailer_id = request.form.get('trailer')
 
         # Получаем номер ттн, дату и  разбиваем на число, месяц и год
+        laboratory = request.form.get('laboratory')
         ttn = request.form.get('ttn')  # Номер ТТН
         series= request.form.get('series')
         date_input = request.form.get('date')  # Получаем дату в формате YYYY-MM-DD
@@ -112,7 +113,7 @@ def index():
                 ws_main["FM6"] = ttn  # Номер ТТН в ячейку FM6
                 ws_main["DR6"] = series
                 ws_main["A22"] = trailer_number  # Номер прицепа
-
+                ws_main["FI36"] = laboratory  # Номер прицепа
                 # Заполнение секций в соответствующие ячейки первого листа
                 ws_main["L25"] = section_weights[0] if section_weights[0] else None
                 ws_main["AF25"] = section_weights[1] if section_weights[1] else None

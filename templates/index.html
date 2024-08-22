@@ -145,7 +145,7 @@
         </select>
 
         <div id="sectionsContainer"></div> <!-- Контейнер для секций -->
-
+        <fieldset style="border: 2px dashed black; padding: 10px; margin: 15px 0; border-radius: 5px; background-color: #f9f9f9;">
         <label for="senders">Выберите организацию отправителя:</label>
         <select id="senders" name="senders" required>
             <option value="">Выберите отправителя</option>
@@ -154,25 +154,29 @@
             {% endfor %}
         </select>
 
-        <label for="addresses">Выберите адрес отправителя:</label>
+        <label for="addresses">Выберите пункт погрузки:</label>
         <select id="addresses" name="addresses" required>
             <option value="">Выберите адрес</option>
         </select>
 
-        <label for="loading_point">Выберите пункт погрузки:</label>
-        <select id="loading_point" name="loading_point">
-            <option value="">Выберите пункт погрузки</option>
-            <option value="пункт1">Пункт 1</option>
-            <option value="пункт2">Пункт 2</option>
-        </select>
 
         <label for="laboratory">Выберите лаборанта:</label>
         <select id="laboratory" name="laboratory">
             <option value="">Выберите лаборанта</option>
-            <option value="лаборант1">Лаборант 1</option>
-            <option value="лаборант2">Лаборант 2</option>
+             <option value="">Выберите лаборанта</option>
+            <option value="Черняк Т.И.">Черняк Т.И.</option>
+            <option value="Петрова П.В.">Петрова П.В.</option>
+            <option value="Левченко О.В.">Левченко О.В.</option>
+            <option value="Коледа А.В.">Коледа А.В.</option>
+            <option value="Воробьева А.В.">Воробьева А.В.</option>
+            <option value="Краглик С.В.">Краглик С.В.</option>
+            <option value="Хуторная Н.И.">Хуторная Н.И.</option>
+            <option value="Комарова О.В.">Комарова О.В.</option>
+            <option value="Зарецкая М.Н.">Зарецкая М.Н.</option>
+            <option value="Сухова Л.М.">Сухова Л.М.</option>
+            <option value="Лошакова Н.М.">Лошакова Н.М.</option>
         </select>
-
+        </fieldset>
         <label for="recipient">Выберите грузополучателя:</label>
         <select id="recipient" name="recipient">
             <option value="">Выберите грузополучателя</option>
