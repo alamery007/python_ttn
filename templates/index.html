@@ -143,6 +143,8 @@
         <select id="trailer" name="trailer" onchange="updateSections()">
             <option value="">Выберите прицеп</option>
         </select>
+        <label for="physical_weight">Физический вес:</label>
+        <input type="text" id="physical_weight" name="physical_weight" readonly>
 
         <div id="sectionsContainer"></div> <!-- Контейнер для секций -->
         <fieldset style="border: 2px dashed black; padding: 10px; margin: 15px 0; border-radius: 5px; background-color: #f9f9f9;">
@@ -161,7 +163,7 @@
 
 
         <label for="laboratory">Выберите лаборанта:</label>
-        <select id="laboratory" name="laboratory">
+        <select id="laboratory" name="laboratory" required>
             <option value="">Выберите лаборанта</option>
              <option value="">Выберите лаборанта</option>
             <option value="Черняк Т.И.">Черняк Т.И.</option>
@@ -177,15 +179,13 @@
             <option value="Лошакова Н.М.">Лошакова Н.М.</option>
         </select>
         </fieldset>
+
         <label for="recipient">Выберите грузополучателя:</label>
         <select id="recipient" name="recipient">
             <option value="">Выберите грузополучателя</option>
             <option value="грузополучатель1">Грузополучатель 1</option>
             <option value="грузополучатель2">Грузополучатель 2</option>
         </select>
-
-        <label for="physical_weight">Введите физический вес:</label>
-        <input type="text" id="physical_weight" name="physical_weight" required>
 
         <div class="button-group">
             <button type="button" onclick="clearForm()">Очистить</button>
@@ -217,6 +217,16 @@
                 }
             });
         }
+
+        function calculateTotalWeight() {
+            let totalWeight = 0;
+            const inputs = document.querySelectorAll('#sectionsContainer input[type="number"]');
+            inputs.forEach(input => {
+                const value = parseFloat(input.value) || 0; // Если не число, то 0
+                totalWeight += value;
+        });
+    document.getElementById('physical_weight').value = totalWeight; // Обновляем поле
+}
 
         function updateSections() {
             const select = document.getElementById('trailer');
@@ -255,6 +265,7 @@
                         const value = parseFloat(this.value);
                         if (!isNaN(value)) {
                             this.style.color = (value > weight) ? 'red' : (value < weight) ? 'blue' : 'green';
+                            calculateTotalWeight();
                         } else {
                             this.style.color = 'black';
                         }

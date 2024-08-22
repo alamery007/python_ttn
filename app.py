@@ -3,7 +3,7 @@ import psycopg2
 from openpyxl import load_workbook
 from io import BytesIO
 from datetime import datetime
-from fpdf import FPDF
+#from fpdf import FPDF
 
 app = Flask(__name__)
 
@@ -59,7 +59,8 @@ def index():
         # Получаем номер ттн, дату и  разбиваем на число, месяц и год
         laboratory = request.form.get('laboratory')
         ttn = request.form.get('ttn')  # Номер ТТН
-        series= request.form.get('series')
+        series = request.form.get('series')
+        physical_weight = request.form.get('physical_weight')
         date_input = request.form.get('date')  # Получаем дату в формате YYYY-MM-DD
         if date_input:
             date_obj = datetime.strptime(date_input, '%Y-%m-%d')
@@ -122,7 +123,7 @@ def index():
                 ws_main["BU25"] = section_weights[4] if section_weights[4] else None
                 ws_main["DH25"] = section_weights[5] if section_weights[5] else None
                 ws_main["DS25"] = section_weights[6] if section_weights[6] else None
-
+                ws_main["CR29"] = physical_weight # сумма веса с секций
                 # Вставка даты в ячейки первого листа
                 ws_main["FM7"] = day
                 ws_main["FS7"] = month
