@@ -3,7 +3,7 @@ import psycopg2
 from openpyxl import load_workbook
 from io import BytesIO
 from datetime import datetime
-#from fpdf import FPDF
+from fpdf import FPDF
 
 app = Flask(__name__)
 
@@ -15,6 +15,14 @@ def db_connection():
         password='123456'
     )
     return conn
+def get_laboratories():
+    conn = db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, name FROM laboratory")
+    laboratories = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return [{'id': row[0], 'name': row[1]} for row in laboratories]
 
 # Функция для получения данных о прицепах
 def get_trailer_data():
@@ -32,6 +40,7 @@ def index():
     drivers = []
     transports = []
     senders = []
+    laboratories = get_laboratories()
 
     # Получаем список водителей, транспорта и отправителей из базы данных
     conn = db_connection()
@@ -55,6 +64,7 @@ def index():
         sender_id = request.form.get('senders')
         address_id = request.form.get('addresses')
         trailer_id = request.form.get('trailer')
+        laboratory = request.form.get('laboratory')  # Получаем выбранного лаборанта
 
         # Получаем номер ттн, дату и  разбиваем на число, месяц и год
         laboratory = request.form.get('laboratory')
@@ -145,7 +155,8 @@ def index():
         'index.html',
         drivers=drivers,
         transports=[t[0] for t in transports],
-        senders=senders
+        senders=senders,
+        laboratories=laboratories  # Передаем данные лаборантов
     )
 
 @app.route('/get_addresses/<int:sender_id>', methods=['GET'])

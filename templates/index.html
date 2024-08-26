@@ -147,6 +147,7 @@
         <input type="text" id="physical_weight" name="physical_weight" readonly>
 
         <div id="sectionsContainer"></div> <!-- Контейнер для секций -->
+
         <fieldset style="border: 2px dashed black; padding: 10px; margin: 15px 0; border-radius: 5px; background-color: #f9f9f9;">
         <label for="senders">Выберите организацию отправителя:</label>
         <select id="senders" name="senders" required>
@@ -161,22 +162,13 @@
             <option value="">Выберите адрес</option>
         </select>
 
-
         <label for="laboratory">Выберите лаборанта:</label>
         <select id="laboratory" name="laboratory" required>
             <option value="">Выберите лаборанта</option>
-             <option value="">Выберите лаборанта</option>
-            <option value="Черняк Т.И.">Черняк Т.И.</option>
-            <option value="Петрова П.В.">Петрова П.В.</option>
-            <option value="Левченко О.В.">Левченко О.В.</option>
-            <option value="Коледа А.В.">Коледа А.В.</option>
-            <option value="Воробьева А.В.">Воробьева А.В.</option>
-            <option value="Краглик С.В.">Краглик С.В.</option>
-            <option value="Хуторная Н.И.">Хуторная Н.И.</option>
-            <option value="Комарова О.В.">Комарова О.В.</option>
-            <option value="Зарецкая М.Н.">Зарецкая М.Н.</option>
-            <option value="Сухова Л.М.">Сухова Л.М.</option>
-            <option value="Лошакова Н.М.">Лошакова Н.М.</option>
+             {% for lab in laboratories %}
+                <option value="{{ lab.name }}">{{ lab.name }}</option>
+            {% endfor %}
+
         </select>
         </fieldset>
 
@@ -187,8 +179,18 @@
             <option value="грузополучатель2">Грузополучатель 2</option>
         </select>
 
-        <div class="button-group">
-            <button type="button" onclick="clearForm()">Очистить</button>
+        <label>Выберите формат для скачивания:</label>
+        <div style="margin: 10px 0;">
+            <input type="radio" id="excel" name="format" value="excel" style="margin-right: 5px;">
+            <label for="excel">Excel</label>
+
+            <input type="radio" id="pdf" name="format" value="pdf" style="margin-left: 10px; margin-right: 5px;">
+            <label for="pdf">PDF</label>
+            </div>
+
+
+        <div class="button-group" style="margin-top: 16px;">
+            <button type="button" onclick="location.reload();">Сбросить все </button>
             <button type="submit">Скачать</button>
         </div>
 
@@ -304,13 +306,6 @@
             $('#delivery_method, #raw_material, #drivers, #transport, #loading_point, #laboratory, #recipient').select2({ tags: true });
         });
 
-        function clearForm() {
-            document.querySelector('form').reset();
-            $('#senders, #addresses').empty();
-            $('#delivery_method, #raw_material, #drivers, #transport, #loading_point, #laboratory, #recipient').val('').trigger('change');
-            $('#trailer').val('').trigger('change');
-            $('#sectionsContainer').empty().hide(); // Очищаем и скрываем контейнер секций
-        }
     </script>
 </fieldset>
 </body>
