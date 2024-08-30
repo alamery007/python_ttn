@@ -3,7 +3,7 @@ import psycopg2
 from openpyxl import load_workbook
 from io import BytesIO
 from datetime import datetime
-from fpdf import FPDF
+#from fpdf import FPDF
 
 app = Flask(__name__)
 
@@ -24,6 +24,15 @@ def get_laboratories():
     conn.close()
     return [{'id': row[0], 'name': row[1]} for row in laboratories]
 
+def get_delivery_data():
+    conn = db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT recipient, inn, razgruzka FROM delivery")
+    recipients = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return [{'recipient': row[0], 'inn': row[1], 'razgruzka': row[2]} for row in recipients]
+
 # Функция для получения данных о прицепах
 def get_trailer_data():
     conn = db_connection()
@@ -41,6 +50,8 @@ def index():
     transports = []
     senders = []
     laboratories = get_laboratories()
+    delivery_data = get_delivery_data()
+
 
     # Получаем список водителей, транспорта и отправителей из базы данных
     conn = db_connection()
@@ -65,6 +76,9 @@ def index():
         address_id = request.form.get('addresses')
         trailer_id = request.form.get('trailer')
         laboratory = request.form.get('laboratory')  # Получаем выбранного лаборанта
+        raw_material =request.form.get('raw_material')
+        delivery_method = request.form.get('delivery_method')
+
 
         # Получаем номер ттн, дату и  разбиваем на число, месяц и год
         laboratory = request.form.get('laboratory')
@@ -72,6 +86,8 @@ def index():
         series = request.form.get('series')
         physical_weight = request.form.get('physical_weight')
         date_input = request.form.get('date')  # Получаем дату в формате YYYY-MM-DD
+        inn = request.form.get('inn')
+        razgruzka = request.form.get('razgruzka')
         if date_input:
             date_obj = datetime.strptime(date_input, '%Y-%m-%d')
             day = f"{date_obj.day:02}"  # Форматирование с ведущим нулем
@@ -113,35 +129,96 @@ def index():
                 # Загружаем существующий Excel файл
                 wb = load_workbook(r'C:\Users\oleg.d\PycharmProjects\New_project\Excel_Project\template.xlsx')
                 ws_main = wb.active  # Первый лист
-                ws_second = wb['стр2']  # Замените на фактическое имя второго листа
+                #ws_second = wb['стр2']  # Замените на фактическое имя второго листа
 
                 # Вставляем данные в нужные ячейки первого листа
-                ws_main["L18"] = driver_info[1]  # Полное имя водителя
-                ws_main["AF18"] = driver_info[0]  # Инициалы водителя
-                ws_main["L20"] = sender_name[0]  # Имя отправителя
-                ws_main["AF20"] = address[0]  # Адрес
+                ws_main["G13"] = driver_info[1]  # Полное имя водителя
+                ws_main["AN51"] = driver_info[0]  # Инициалы водителя
+                ws_main["CY49"] = driver_info[0]  # Инициалы водителя
+                ws_main["K7"] = sender_name[0]  # Имя отправителя
+                ws_main["K18"] = sender_name[0]  # Имя отправителя
+                ws_main["K21"] = address[0]  # Адрес
 
-                ws_main["FM6"] = ttn  # Номер ТТН в ячейку FM6
-                ws_main["DR6"] = series
-                ws_main["A22"] = trailer_number  # Номер прицепа
-                ws_main["FI36"] = laboratory  # Номер прицепа
-                # Заполнение секций в соответствующие ячейки первого листа
-                ws_main["L25"] = section_weights[0] if section_weights[0] else None
-                ws_main["AF25"] = section_weights[1] if section_weights[1] else None
-                ws_main["AS25"] = section_weights[2] if section_weights[2] else None
-                ws_main["BE25"] = section_weights[3] if section_weights[3] else None
-                ws_main["BU25"] = section_weights[4] if section_weights[4] else None
-                ws_main["DH25"] = section_weights[5] if section_weights[5] else None
-                ws_main["DS25"] = section_weights[6] if section_weights[6] else None
-                ws_main["CR29"] = physical_weight # сумма веса с секций
+                ws_main["H30"] = raw_material
+                ws_main["AX13"] = delivery_method
+                ws_main["K23"] = request.form.get('recipient')  # Получатель
+                ws_main["H15"] = inn  # ИНН
+                ws_main["K25"] = razgruzka  # Адрес разгрузки
+                ws_main["BG3"] = ttn  # Номер ТТН в ячейку FM6
+                ws_main["BD8"] = trailer_number  # Номер прицепа
+                ws_main["AN49"] = laboratory  # Номер прицепа
+                current_row = 35  # Начальная строка для заполнения
+                for i, weight in enumerate(section_weights):
+                    if weight:  # Если вес секции существует
+                        ws_main[f"A{current_row}"] = i + 1  # Номер любой секции
+                        ws_main[f"D{current_row}"] = weight  # Заполнение веса секции
+                        current_row += 1  # Переход к следующему ряду
+
+                # Очищаем оставшиеся ячейки (A38-A41) если они не заполнены
+                for j in range(current_row, 42):
+                    ws_main[f"A{j}"] = None
+                    ws_main[f"D{j}"] = None
+                    ws_main["BO35"] = physical_weight # сумма веса с секций
+
+                ws_main["K8"] = brand[0]  # Заполняем ячейку CO4 (марка)
+                ws_main["AM8"] = transport_number  # Заполняем ячейку EL4 (номер)
                 # Вставка даты в ячейки первого листа
-                ws_main["FM7"] = day
-                ws_main["FS7"] = month
-                ws_main["FZ7"] = year
+                ws_main["Y6"] = day
+                ws_main["AE6"] = month
+                ws_main["AU6"] = year
+
+                current_row = 35  # Начальная строка для заполнения
+
+                # Массив атрибутов для секций
+                attributes = [
+                    'fat_content', 'protein_content', 'acidity', 'temperature',
+                    'density', 'cell_content', 'purity_group', 'heat_resistance', 'grade'
+                ]
+
+                # Список для заполненных секций
+                filled_sections = []
+
+                # Заполнение ячеек для каждой секции
+                for index in range(len(section_weights)):
+                    weight = section_weights[index]
+                    # Проверка, заполнена ли секция
+                    if weight:  # Если вес секции существует
+                        filled_sections.append(index)  # Сохраняем номер секции
+                        ws_main[f"A{current_row}"] = index + 1  # Номер секции
+                        ws_main[f"D{current_row}"] = weight  # Заполнение веса секции
+
+                        # Заполнение атрибутов
+                        for attr in attributes:
+                            value = request.form.get(f'{attr}_{index + 1}', '')
+                            if attr == 'fat_content':
+                                ws_main[f'J{current_row}'] = value  # Массовая доля жира %
+                            elif attr == 'protein_content':
+                                ws_main[f'P{current_row}'] = value  # Массовая доля белка %
+                            elif attr == 'acidity':
+                                ws_main[f'V{current_row}'] = value  # Кислотность °Т
+                            elif attr == 'temperature':
+                                ws_main[f'AB{current_row}'] = value  # Температура °С
+                            elif attr == 'density':
+                                ws_main[f'AH{current_row}'] = value  # Плотность кг/м3
+                            elif attr == 'cell_content':
+                                ws_main[f'AN{current_row}'] = value  # Содер. Самат. Клеток, тыс/см3
+                            elif attr == 'purity_group':
+                                ws_main[f'AT{current_row}'] = value  # Группа чистоты
+                            elif attr == 'heat_resistance':
+                                ws_main[f'AZ{current_row}'] = value  # Термоустойчивочть, группа
+                            elif attr == 'grade':
+                                ws_main[f'BF{current_row}'] = value  # Сорт
+
+                        current_row += 1  # Переход к следующему ряду
+
+                # Очищаем оставшиеся ячейки, если они не заполнены
+                for j in range(current_row, 42):
+                    ws_main[f"A{j}"] = None
+                    ws_main[f"D{j}"] = None
 
                 # Заполнение ячеек на втором листе
-                ws_second["CO4"] = brand[0]  # Заполняем ячейку CO4 (марка)
-                ws_second["EL4"] = transport_number  # Заполняем ячейку EL4 (номер)
+                #ws_second["CO4"] = brand[0]  # Заполняем ячейку CO4 (марка)
+                #ws_second["EL4"] = transport_number  # Заполняем ячейку EL4 (номер)
                 # Сохранение файла в BytesIO для отправки
                 output = BytesIO()
                 wb.save(output)
@@ -156,7 +233,8 @@ def index():
         drivers=drivers,
         transports=[t[0] for t in transports],
         senders=senders,
-        laboratories=laboratories  # Передаем данные лаборантов
+        laboratories=laboratories,  # Передаем данные лаборантов
+        recipients=delivery_data
     )
 
 @app.route('/get_addresses/<int:sender_id>', methods=['GET'])
