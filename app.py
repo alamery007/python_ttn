@@ -1,9 +1,12 @@
 from flask import Flask, render_template, request, send_file, jsonify
 import psycopg2
 from openpyxl import load_workbook
-from io import BytesIO
 from datetime import datetime
+import pythoncom
+import win32com.client as win32  # Добавлено для конвертации Excel в PDF
+#from io import BytesIO
 #from fpdf import FPDF
+#import os
 
 app = Flask(__name__)
 
@@ -83,7 +86,6 @@ def index():
         # Получаем номер ттн, дату и  разбиваем на число, месяц и год
         laboratory = request.form.get('laboratory')
         ttn = request.form.get('ttn')  # Номер ТТН
-        series = request.form.get('series')
         physical_weight = request.form.get('physical_weight')
         date_input = request.form.get('date')  # Получаем дату в формате YYYY-MM-DD
         inn = request.form.get('inn')
@@ -219,14 +221,15 @@ def index():
                 # Заполнение ячеек на втором листе
                 #ws_second["CO4"] = brand[0]  # Заполняем ячейку CO4 (марка)
                 #ws_second["EL4"] = transport_number  # Заполняем ячейку EL4 (номер)
-                # Сохранение файла в BytesIO для отправки
-                output = BytesIO()
-                wb.save(output)
-                output.seek(0)
 
-                return send_file(output, as_attachment=True, download_name='updated_drivers_info.xlsx',
-                                 mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+                excel_path = r'C:\Users\oleg.d\PycharmProjects\New_project\Excel_Project\updated_drivers_info.xlsx'
+                wb.save(excel_path)
 
+                # Генерация PDF из заполненного Excel
+                pdf_path = convert_excel_to_pdf(excel_path)
+
+
+                return send_file(pdf_path, as_attachment=False, download_name='document.pdf', mimetype='application/pdf')
     # Передаем данные на шаблон
     return render_template(
         'index.html',
@@ -236,6 +239,18 @@ def index():
         laboratories=laboratories,  # Передаем данные лаборантов
         recipients=delivery_data
     )
+
+def convert_excel_to_pdf(excel_path):
+    pythoncom.CoInitialize()  # Инициализация COM
+    excel = win32.gencache.EnsureDispatch('Excel.Application')
+    wb = excel.Workbooks.Open(excel_path)
+
+    pdf_path = excel_path.replace('.xlsx', '.pdf')
+    wb.ExportAsFixedFormat(0, pdf_path)  # 0 означает xlTypePDF
+    wb.Close(False)
+    excel.Application.Quit()
+
+    return pdf_path
 
 @app.route('/get_addresses/<int:sender_id>', methods=['GET'])
 def get_addresses(sender_id):

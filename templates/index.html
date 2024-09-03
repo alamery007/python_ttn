@@ -18,7 +18,7 @@
             text-decoration: underline;
         }
         form {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: auto;
             display: flex;
             flex-direction: column;
@@ -36,8 +36,8 @@
         }
         button {
             padding: 10px;
-            background-color: #4CAF50;
-            color: white;
+            background-color: #6dab70;
+            color: black;
             border: none;
             border-radius: 4px;
             cursor: pointer;
@@ -82,7 +82,7 @@
         }
         /* Новые стили для контейнера секций */
         #sectionsContainer {
-            border: 2px dashed #68adf7;
+            border: 2px dashed #121212;
             padding: 10px;
             margin-top: 15px;
             background-color: #f0f8ff;
@@ -118,23 +118,30 @@
             </div>
         </div>
 
-        <label for="delivery_method">Вид перевозки:</label>
-        <select id="delivery_method" name="delivery_method" required>
-            <option value="">Выберите вид перевозки</option>
-            <option value="Доставка">Доставка</option>
-            <option value="Самовывоз">Самовывоз</option>
-        </select>
+        <div class="input-row">
+            <div class="input-group">
+                <label for="delivery_method">Вид перевозки:</label>
+                <select id="delivery_method" name="delivery_method" required>
+                    <option value="">Выбрать:</option>
+                    <option value="Доставка">Доставка</option>
+                    <option value="Самовывоз">Самовывоз</option>
+                </select>
+            </div>
 
-        <label for="raw_material">Продукция:</label>
-        <select id="raw_material" name="raw_material">
-            <option value="">Выберите продукцию</option>
-            <option value="Молоко сырое коровье">Молоко сырое коровье</option>
-            <option value="Молоко обезжиренное коровье">Молоко обезжиренное коровье</option>
-        </select>
+            <div class="input-group">
+                <label for="raw_material">Продукция:</label>
+                <select id="raw_material" name="raw_material">
+                    <option value="">Выбрать:</option>
+                    <option value="Молоко сырое коровье">Молоко сырое коровье</option>
+                    <option value="Молоко обезжиренное коровье">Молоко обезжиренное коровье</option>
+                </select>
+            </div>
+        </div>
+
 
         <label for="drivers">Водитель:</label>
         <select id="drivers" name="drivers" required>
-            <option value="">Выберите водителя</option>
+            <option value="">Выбрать:</option>
             {% for driver in drivers %}
                 <option value="{{ driver[0] }}">{{ driver[1] }}</option>
             {% endfor %}
@@ -142,7 +149,7 @@
 
         <label for="transport">Номер транспорта:</label>
         <select id="transport" name="transport">
-            <option value="">Выберите номер транспорта</option>
+            <option value="">Выбрать:</option>
             {% for t in transports %}
                 <option value="{{ t }}">{{ t }}</option>
             {% endfor %}
@@ -161,7 +168,7 @@
         <fieldset style="border: 2px dashed black; padding: 10px; margin: 15px 0; border-radius: 5px; background-color: #f9f9f9;">
             <label for="senders">Грузоотправитель:</label>
             <select id="senders" name="senders" required>
-                <option value="">Выберите грузоотправителя</option>
+                <option value="">Выбрать:</option>
                 {% for sender in senders %}
                     <option value="{{ sender[0] }}">{{ sender[1] }}</option>
                 {% endfor %}
@@ -169,12 +176,12 @@
 
             <label for="addresses">Пункт погрузки:</label>
             <select id="addresses" name="addresses" required>
-                <option value="">Выберите пункт погрузки</option>
+                <option value="">Выбрать:</option>
             </select>
 
             <label for="laboratory">Лаборант:</label>
             <select id="laboratory" name="laboratory" required>
-                <option value="">Выберите лаборанта</option>
+                <option value="">Выбрать:</option>
                 {% for lab in laboratories %}
                     <option value="{{ lab.name }}">{{ lab.name }}</option>
                 {% endfor %}
@@ -183,7 +190,7 @@
 
         <label for="recipient">Грузополучатель:</label>
         <select id="recipient" name="recipient" required>
-            <option value="" disabled selected>Выберите Грузополучателя</option>
+            <option value="" disabled selected>Выбрать:</option>
             {% for recipient in recipients %}
                 <option value="{{ recipient.recipient }}" data-inn="{{ recipient.inn }}" data-razgruzka="{{ recipient.razgruzka }}">
                     {{ recipient.recipient }}
@@ -193,19 +200,9 @@
 
         <div id="hiddenFields"></div> <!-- Скрытые поля для inn и razgruzка -->
 
-        <div style="margin-top: 20px;">
-            <label>Выберите формат для скачивания:</label>
-            <div style="margin: 10px 0;">
-                <input type="radio" id="excel" name="format" value="excel" style="margin-left: 1px; margin-right: 5px;">
-                <label for="excel">Excel</label>
-                <input type="radio" id="pdf" name="format" value="pdf" style="margin-left: 1px; margin-right: 5px;">
-                <label for="pdf">PDF</label>
-            </div>
-        </div>
-
         <div class="button-group" style="margin-top: 16px;">
             <button type="button" onclick="location.reload();">Сбросить все </button>
-            <button type="submit">Скачать</button>
+            <button type="submit">Печать</button>
         </div>
 
         <button type="button" class="whatsapp-button" onclick="alert('Будет позже!')">Отправить на WhatsApp</button>
@@ -222,7 +219,7 @@
                     trailers = data;
                     const trailerSelect = $('#trailer');
                     trailerSelect.empty();
-                    trailerSelect.append('<option value="">Выберите прицеп</option>');
+                    trailerSelect.append('<option value="">Выбрать:</option>');
                     trailers.forEach(trailer => {
                         trailerSelect.append(`<option value="${trailer.id}">${trailer.number}</option>`);
                     });
