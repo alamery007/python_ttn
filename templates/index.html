@@ -41,7 +41,7 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            width: 100%;
+            margin-top: 10px;
             margin-bottom: 10px;
         }
         button:hover {
@@ -104,8 +104,13 @@
     </style>
 </head>
 <body>
+<div style="text-align: center; position: relative; margin-bottom: 20px;">
+        <a href="/data-entry" style="position: absolute; left: 0;">
+            <button type="button" style="padding: 5px 10px; font-size: 14px;">Вносить данные</button>
+        </a>
+        <h1 style="display: inline;">Заполните Товарно-Транспортную Накладную</h1>
+</div>
 <fieldset style="border: 2px dashed black; padding: 10px; margin: 15px 0; border-radius: 5px; background-color: #f9f9f9;">
-    <h1>Заполните Товарно-Транспортную Накладную</h1>
     <form method="POST">
         <div class="input-row">
             <div class="input-group">

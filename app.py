@@ -8,16 +8,18 @@ import win32com.client as win32  # Добавлено для конвертац�
 #from fpdf import FPDF
 #import os
 
+
 app = Flask(__name__)
 
 def db_connection():
-    conn = psycopg2.connect(
+    with psycopg2.connect(
         host='localhost',
         database='form_tth',
         user='postgres',
         password='123456'
-    )
-    return conn
+    ) as conn:
+        return conn
+
 def get_laboratories():
     conn = db_connection()
     cursor = conn.cursor()
@@ -269,6 +271,12 @@ def get_addresses(sender_id):
 def trailers():
     trailer_data = get_trailer_data()
     return jsonify(trailer_data)
+
+@app.route('/data-entry', methods=['GET'])
+def data_entry():
+    # Здесь вы можете определить логику, которую хотите использовать на странице ввода данных.
+    return render_template('data_entry.html')  # Создайте новый шаблон для этой страницы
+
 
 if __name__ == '__main__':
     app.run(debug=True)
