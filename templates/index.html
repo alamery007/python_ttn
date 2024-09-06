@@ -4,112 +4,18 @@
     <meta charset="UTF-8">
     <title>Форма для заполнения ТТН</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #d3dbde;
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-            text-decoration: underline;
-        }
-        form {
-            max-width: 1400px;
-            margin: auto;
-            display: flex;
-            flex-direction: column;
-        }
-        label {
-            margin: 10px 0 5px;
-        }
-        select, input[type="text"], input[type="date"], input[type="number"] {
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        button {
-            padding: 10px;
-            background-color: #6dab70;
-            color: black;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 10px;
-            margin-bottom: 10px;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        .button-group {
-            display: flex;
-            justify-content: space-between;
-        }
-        .button-group button {
-            width: 48%;
-        }
-        .section {
-            margin: 10px 0;
-        }
-        fieldset {
-            border: 2px dashed #68adf7;
-            border-radius: 10px;
-            padding: 10px;
-            background-color: #f0f8ff;
-        }
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        .input-row {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-        }
-        .input-row > div {
-            flex: 1;
-            margin-right: 10px;
-        }
-        .input-row > div:last-child {
-            margin-right: 0;
-        }
-        /* Новые стили для контейнера секций */
-        #sectionsContainer {
-            border: 2px dashed #121212;
-            padding: 10px;
-            margin-top: 15px;
-            background-color: #f0f8ff;
-            display: none;
-        }
-        .attributes-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .attribute {
-            flex: 1 1 18%; /* Устанавливаем ширину для каждого элемента */
-            box-sizing: border-box; /* Учитываем отступы и границы в 100% ширины */
-        }
-        input {
-            width: 100%;
-            padding: 5px;
-        }
-    </style>
 </head>
 <body>
-<div style="text-align: center; position: relative; margin-bottom: 20px;">
-        <a href="/data-entry" style="position: absolute; left: 0;">
-            <button type="button" style="padding: 5px 10px; font-size: 14px;">Вносить данные</button>
-        </a>
-        <h1 style="display: inline;">Заполните Товарно-Транспортную Накладную</h1>
+<div style="text-align: center; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+    <h1 style="flex-grow: 1; margin: 0;">Заполните Товарно-Транспортную Накладную</h1>
+    <a href="/data-entry">
+        <button type="button" style="padding: 5px 10px; font-size: 14px;">Внести новые данные</button>
+    </a>
 </div>
+
 <fieldset style="border: 2px dashed black; padding: 10px; margin: 15px 0; border-radius: 5px; background-color: #f9f9f9;">
     <form method="POST">
         <div class="input-row">
@@ -143,14 +49,17 @@
             </div>
         </div>
 
-
-        <label for="drivers">Водитель:</label>
-        <select id="drivers" name="drivers" required>
-            <option value="">Выбрать:</option>
-            {% for driver in drivers %}
-                <option value="{{ driver[0] }}">{{ driver[1] }}</option>
-            {% endfor %}
-        </select>
+        <div class="input-row">
+            <div class="input-group">
+                <label for="drivers">Водитель:</label>
+                <select id="drivers" name="drivers" required>
+                    <option value="">Выбрать:</option>
+                    {% for driver in drivers %}
+                        <option value="{{ driver[0] }}">{{ driver[1] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
 
         <label for="transport">Номер транспорта:</label>
         <select id="transport" name="transport">
@@ -161,7 +70,7 @@
         </select>
 
         <label for="trailer">Номер прицепа:</label>
-        <select id="trailer" name="trailer" onchange="updateSections()">
+        <select id="trailer" name="trailer" onchange="updateSections()" >
             <option value="">Выберите номер прицепа</option>
         </select>
 
@@ -170,28 +79,26 @@
 
         <div id="sectionsContainer"></div> <!-- Контейнер для секций -->
 
-        <fieldset style="border: 2px dashed black; padding: 10px; margin: 15px 0; border-radius: 5px; background-color: #f9f9f9;">
-            <label for="senders">Грузоотправитель:</label>
-            <select id="senders" name="senders" required>
-                <option value="">Выбрать:</option>
-                {% for sender in senders %}
-                    <option value="{{ sender[0] }}">{{ sender[1] }}</option>
-                {% endfor %}
-            </select>
+        <label for="senders">Грузоотправитель:</label>
+        <select id="senders" name="senders" class="select2-taggable" required>
+            <option value="">Выбрать:</option>
+            {% for sender in senders %}
+                <option value="{{ sender[0] }}">{{ sender[1] }}</option>
+            {% endfor %}
+        </select>
 
-            <label for="addresses">Пункт погрузки:</label>
-            <select id="addresses" name="addresses" required>
-                <option value="">Выбрать:</option>
-            </select>
+        <label for="addresses">Пункт погрузки:</label>
+        <select id="addresses" name="addresses" class="select2-taggable" required>
+            <option value="">Выбрать:</option>
+        </select>
 
-            <label for="laboratory">Лаборант:</label>
-            <select id="laboratory" name="laboratory" required>
-                <option value="">Выбрать:</option>
-                {% for lab in laboratories %}
-                    <option value="{{ lab.name }}">{{ lab.name }}</option>
-                {% endfor %}
-            </select>
-        </fieldset>
+        <label for="laboratory">Лаборант:</label>
+        <select id="laboratory" name="laboratory" required>
+            <option value="">Выбрать:</option>
+            {% for lab in laboratories %}
+                <option value="{{ lab.name }}">{{ lab.name }}</option>
+            {% endfor %}
+        </select>
 
         <label for="recipient">Грузополучатель:</label>
         <select id="recipient" name="recipient" required>
@@ -203,7 +110,7 @@
             {% endfor %}
         </select>
 
-        <div id="hiddenFields"></div> <!-- Скрытые поля для inn и razgruzка -->
+        <div id="hiddenFields"></div> <!-- Скрытые поля для inn и razgruzka -->
 
         <div class="button-group" style="margin-top: 16px;">
             <button type="button" onclick="location.reload();">Сбросить все </button>
@@ -213,157 +120,8 @@
         <button type="button" class="whatsapp-button" onclick="alert('Будет позже!')">Отправить на WhatsApp</button>
     </form>
 
-    <script>
-        let trailers = [];
-
-        function loadTrailers() {
-            $.ajax({
-                url: '/trailers',
-                type: 'GET',
-                success: function(data) {
-                    trailers = data;
-                    const trailerSelect = $('#trailer');
-                    trailerSelect.empty();
-                    trailerSelect.append('<option value="">Выбрать:</option>');
-                    trailers.forEach(trailer => {
-                        trailerSelect.append(`<option value="${trailer.id}">${trailer.number}</option>`);
-                    });
-                    trailerSelect.select2({ tags: true });
-                },
-                error: function() {
-                    alert('Ошибка при загрузке данных о прицепах');
-                }
-            });
-        }
-
-        function calculateTotalWeight() {
-            let totalWeight = 0;
-            const inputs = document.querySelectorAll('#sectionsContainer input[type="number"]');
-            inputs.forEach(input => {
-                const value = parseFloat(input.value) || 0; // Если не число, то 0
-                totalWeight += value;
-            });
-            document.getElementById('physical_weight').value = totalWeight; // Обновляем поле
-        }
-
-        function updateSections() {
-            const select = document.getElementById('trailer');
-            const selectedTrailerId = select.value;
-            const selectedTrailer = trailers.find(trailer => trailer.id == selectedTrailerId);
-            const container = document.getElementById('sectionsContainer');
-            container.innerHTML = '';
-
-            if (selectedTrailer) {
-                const sections = selectedTrailer.sections.filter(weight => weight !== null); // Фильтруем секции
-                container.style.display = sections.length > 0 ? 'block' : 'none'; // Показываем или скрываем контейнер
-
-                sections.forEach((weight, index) => {
-                    const div = document.createElement('div');
-                    div.className = 'section';
-
-                    const label = document.createElement('label');
-                    label.innerText = `Секция ${index + 1}: `;
-                    div.appendChild(label);
-
-                    const input = document.createElement('input');
-                    input.type = 'number';
-                    input.name = `section_weight_${index + 1}`;
-                    input.placeholder = `Максимальный вес: ${weight}`;
-
-                    const buttonSet = document.createElement('button');
-                    buttonSet.type = 'button';
-                    buttonSet.innerText = 'Заполнить до макс';
-                    buttonSet.addEventListener('click', function() {
-                        input.value = weight; // Заполняем инпут максимальным весом
-                        input.dispatchEvent(new Event('input')); // Обновляем цвет
-                    });
-
-                    input.addEventListener('input', function() {
-                        const value = parseFloat(this.value);
-                        if (!isNaN(value)) {
-                            this.style.color = (value > weight) ? 'red' : (value < weight) ? 'blue' : 'green';
-                            calculateTotalWeight();
-                        } else {
-                            this.style.color = 'black';
-                        }
-                    });
-
-                    div.appendChild(input);
-                    div.appendChild(buttonSet); // Кнопка для заполнения
-
-                    // Добавляем поля для уникальных значений
-                    const attributes = [
-                        { label: 'Массовая доля жира %', name: `fat_content_${index + 1}` },
-                        { label: 'Массовая доля белка %', name: `protein_content_${index + 1}` },
-                        { label: 'Кислотность °Т', name: `acidity_${index + 1}` },
-                        { label: 'Температура °С', name: `temperature_${index + 1}` },
-                        { label: 'Плотность кг/м3', name: `density_${index + 1}` },
-                        { label: 'Содер. Самат. Клеток, тыс/см3', name: `cell_content_${index + 1}` },
-                        { label: 'Группа чистоты', name: `purity_group_${index + 1}` },
-                        { label: 'Термоустойчивочть, группа', name: `heat_resistance_${index + 1}` },
-                        { label: 'Сорт', name: `grade_${index + 1}` }
-                    ];
-
-                    const attributesContainer = document.createElement('div');
-                    attributesContainer.className = 'attributes-container'; // Новый контейнер для атрибутов
-
-                    attributes.forEach(attr => {
-                        const attrDiv = document.createElement('div');
-                        attrDiv.className = 'attribute';
-
-                        const attrInput = document.createElement('input');
-                        attrInput.type = 'text';
-                        attrInput.name = attr.name;
-                        attrInput.placeholder = attr.label; // Подсказка в поле ввода
-
-                        attrDiv.appendChild(attrInput);
-                        attributesContainer.appendChild(attrDiv); // Добавляем атрибут в контейнер
-                    });
-
-                    div.appendChild(attributesContainer); // Добавляем контейнер атрибутов в секцию
-                    container.appendChild(div); // Добавляем секцию в контейнер
-                });
-            } else {
-                container.style.display = 'none'; // Скрываем контейнер, если прицеп не выбран
-            }
-        }
-
-        $(document).ready(function() {
-            $('#recipient').change(function() {
-                const selectedOption = $(this).find(':selected');
-                const selectedInn = selectedOption.data('inn');
-                const selectedRazgruzka = selectedOption.data('razgruzka');
-
-                $('#hiddenFields').html(`
-                    <input type="hidden" name="inn" value="${selectedInn}">
-                    <input type="hidden" name="razgruzka" value="${selectedRazgruzka}">
-                `);
-            });
-
-            loadTrailers();
-
-            $('#senders').change(function() {
-                const senderId = $(this).val();
-                if (senderId) {
-                    $.ajax({
-                        url: '/get_addresses/' + senderId,
-                        type: 'GET',
-                        success: function(data) {
-                            $('#addresses').empty();
-                            $.each(data, function(i, address) {
-                                $('#addresses').append('<option value="' + address[0] + '">' + address[1] + '</option>');
-                            });
-                        }
-                    });
-                } else {
-                    $('#addresses').empty();
-                }
-            });
-
-            $('#delivery_method, #raw_material, #drivers, #transport, #laboratory, #recipient').select2({ tags: true });
-        });
-
-    </script>
 </fieldset>
 </body>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
 </html>

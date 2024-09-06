@@ -7,8 +7,6 @@ import win32com.client as win32  # Добавлено для конвертац�
 #from io import BytesIO
 #from fpdf import FPDF
 #import os
-
-
 app = Flask(__name__)
 
 def db_connection():
@@ -49,6 +47,23 @@ def get_trailer_data():
     conn.close()
     return [{'id': row[0], 'number': row[1], 'sections': row[2:]} for row in trailers]
 
+@app.route('/get_initials/<int:driver_id>', methods=['GET'])
+def get_initials(driver_id):
+    conn = db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT initials FROM drivers WHERE id = %s", (driver_id,))
+    initials = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    if initials:
+        return jsonify({'initials': initials[0]})
+    else:
+        return jsonify({'initials': ''})
+
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     drivers = []
@@ -75,14 +90,14 @@ def index():
     conn.close()
 
     if request.method == 'POST':
-        driver_id = request.form.get('drivers')
-        transport_number = request.form.get('transport')
-        sender_id = request.form.get('senders')
-        address_id = request.form.get('addresses')
-        trailer_id = request.form.get('trailer')
-        laboratory = request.form.get('laboratory')  # Получаем выбранного лаборанта
-        raw_material =request.form.get('raw_material')
-        delivery_method = request.form.get('delivery_method')
+        driver_id = request.form.get('drivers', 'не указан')
+        transport_number = request.form.get('transport', 'не указан')
+        sender_id = request.form.get('senders', 'не указан')
+        address_id = request.form.get('addresses', 'не указан')
+        trailer_id = request.form.get('trailer', 'не указан')
+        laboratory = request.form.get('laboratory', 'не указан')  # Получаем выбранного лаборанта
+        raw_material =request.form.get('raw_material', 'не указан')
+        delivery_method = request.form.get('delivery_method', 'не указан')
 
 
         # Получаем номер ттн, дату и  разбиваем на число, месяц и год
@@ -230,7 +245,6 @@ def index():
                 # Генерация PDF из заполненного Excel
                 pdf_path = convert_excel_to_pdf(excel_path)
 
-
                 return send_file(pdf_path, as_attachment=False, download_name='document.pdf', mimetype='application/pdf')
     # Передаем данные на шаблон
     return render_template(
@@ -253,7 +267,24 @@ def convert_excel_to_pdf(excel_path):
     excel.Application.Quit()
 
     return pdf_path
+#Новый маршрут для обработки POST-запроса, который будет получать данные из формы и записывать их в базу данных.
+@app.route('/submit-data', methods=['POST'])
+def submit_data():
+    driver_full_name = request.form.get('driver_full_name')
+    driver_initials = request.form.get('driver_initials')
 
+    conn = db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+            INSERT INTO drivers (full_name, initials) VALUES (%s, %s) RETURNING id
+        """, (driver_full_name, driver_initials))
+    driver_id = cursor.fetchone()[0]  # Получаем ID водителя
+    conn.commit()  # Сохраняем изменения
+    cursor.close()
+    conn.close()
+
+    return "Данные успешно сохранены!"  # Можно заменить на redirect на нужную страницу
 @app.route('/get_addresses/<int:sender_id>', methods=['GET'])
 def get_addresses(sender_id):
     conn = db_connection()
@@ -264,7 +295,6 @@ def get_addresses(sender_id):
 
     cursor.close()
     conn.close()
-
     return jsonify(addresses)
 
 @app.route('/trailers', methods=['GET'])

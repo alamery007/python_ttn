@@ -61,28 +61,43 @@
         <input type="text" id="driver_initials" name="driver_initials" required>
 
         <label for="sender_name">Имя отправителя:</label>
-        <input type="text" id="sender_name" name="sender_name" required>
+        <input type="text" id="sender_name" name="sender_name">
 
         <label for="loading_address">Адрес погрузки:</label>
-        <input type="text" id="loading_address" name="loading_address" required>
+        <input type="text" id="loading_address" name="loading_address">
 
         <label for="recipient_name">Получатель:</label>
-        <input type="text" id="recipient_name" name="recipient_name" required>
+        <input type="text" id="recipient_name" name="recipient_name">
 
         <label for="unloading_address">Адрес разгрузки:</label>
-        <input type="text" id="unloading_address" name="unloading_address" required>
+        <input type="text" id="unloading_address" name="unloading_address">
 
         <label for="trailer_number">Номер прицепа:</label>
-        <input type="text" id="trailer_number" name="trailer_number" required>
+        <input type="text" id="trailer_number" name="trailer_number" >
 
         <label for="section_count">Количество секций в прицепе:</label>
-        <input type="number" id="section_count" name="section_count" required min="1">
+        <input type="number" id="section_count" name="section_count" min="1">
 
         <div class="button-group">
             <button type="submit">Сохранить данные</button>
             <button type="button" onclick="window.history.back();">Назад</button> <!-- Кнопка для возврата на предыдущую страницу -->
         </div>
     </form>
+        <script>
+            $(document).ready(function() {
+                $('form').on('submit', function(event) {
+                    const fullName = $('#driver_full_name').val().trim();
+                    const nameParts = fullName.split(' ');
+
+                    // Проверка на количество слов в полном имени (3 части: Фамилия, Имя, Отчество)
+                    if (nameParts.length !== 3) {
+                        alert("Введи Фамилию, Имя и Отчество с заглавных Букв.");
+                        event.preventDefault(); // Отменить отправку формы
+                    }
+                });
+            });
+        </script>
+
 </fieldset>
 </body>
 </html>
