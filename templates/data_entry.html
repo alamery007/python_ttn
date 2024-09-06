@@ -4,51 +4,10 @@
     <meta charset="UTF-8">
     <title>Ввод данных</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #d3dbde;
-        }
-        fieldset {
-            border: 2px dashed black;
-            border-radius: 5px;
-            padding: 10px;
-            background-color: #f9f9f9;
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-            text-decoration: underline;
-        }
-        label {
-            margin: 10px 0 5px;
-        }
-        input {
-            width: 100%;
-            padding: 5px;
-        }
-        button {
-            padding: 10px 15px;
-            background-color: #6dab70;
-            border: none;
-            color: black;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 10px;
-            width: 48%; /* Изменено для кнопок "Назад" и "Сохранить" в одной группе */
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        .button-group {
-            display: flex;
-            justify-content: space-between; /* Распределение кнопок по сторонам */
-            margin-top: 10px; /* Отдельный отступ для группы кнопок */
-        }
-    </style>
+
 </head>
 <body>
 <fieldset>

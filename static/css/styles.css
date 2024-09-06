@@ -1,55 +1,68 @@
 /* Основные стили страницы */
 body {
-    font-family: Arial, sans-serif; /* Шрифт страницы */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Современный шрифт */
     margin: 20px; /* Отступы вокруг страницы */
-    background-color: #d3dbde; /* Фоновый цвет страницы */
+    background-color: #e9eff2; /* Облегченный фоновый цвет */
 }
 
 /* Стили для заголовка первого уровня */
 h1 {
     text-align: center; /* Выравнивание текста по центру */
-    color: #333; /* Цвет текста */
+    color: #4a4a4a; /* Более мягкий цвет текста */
     text-decoration: underline; /* Подчеркивание текста */
+    margin-bottom: 20px; /* Отступ снизу */
 }
 
 /* Стили для формы */
 form {
-    max-width: 1400px; /* Максимальная ширина формы */
+    max-width: 800px; /* Уменьшенная максимальная ширина формы */
     margin: auto; /* Центрирование формы */
     display: flex; /* Использование flexbox */
     flex-direction: column; /* Вертикальное расположение элементов */
+    background: white; /* Фон формы */
+    padding: 20px; /* Внутренние отступы */
+    border-radius: 8px; /* Закругление углов */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Легкая тень */
 }
 
 /* Стили для меток формы */
 label {
     margin: 10px 0 5px; /* Отступы вокруг меток */
+    font-weight: bold; /* Полужирный текст */
 }
 
 /* Стили для полей ввода и выпадающих списков */
 select, input[type="text"], input[type="date"], input[type="number"] {
-    padding: 10px; /* Отступы внутри полей */
+    padding: 12px; /* Увеличенные отступы внутри полей */
     margin-bottom: 15px; /* Отступ снизу */
     border: 1px solid #ccc; /* Обводка поля */
     border-radius: 4px; /* Закругление углов */
     width: 100%; /* Ширина 100% от родительского элемента */
     box-sizing: border-box; /* Учет отступов и границ в общей ширине */
+    transition: border-color 0.3s; /* Плавный переход цвета границы */
+}
+
+/* Эффект при фокусе на полях ввода */
+select:focus, input[type="text"]:focus, input[type="date"]:focus, input[type="number"]:focus {
+    border-color: #6dab70; /* Изменение цвета границы при фокусе */
 }
 
 /* Стили для кнопок */
 button {
-    padding: 10px; /* Отступы внутри кнопки */
+    padding: 12px; /* Увеличенные отступы внутри кнопки */
     background-color: #6dab70; /* Цвет фона кнопки */
-    color: black; /* Цвет текста кнопки */
+    color: white; /* Цвет текста кнопки */
     border: none; /* Без обводки */
     border-radius: 4px; /* Закругление углов */
     cursor: pointer; /* Курсор указателя при наведении */
     width: 100%; /* Ширина 100% */
-    margin-bottom: 10px; /* Отступ снизу */
+    margin-bottom: 10px; /* Отступ ниже кнопки */
+    transition: background-color 0.3s; /* Плавный переход цвета */
 }
 
 /* Эффект при наведении на кнопку */
 button:hover {
-    background-color: #45a049; /* Изменение цвета фона кнопки при наведении */
+    background-color: #4cae4f; /* Более темный цвет фона кнопки при наведении */
 }
 
 /* Группировка кнопок */
@@ -65,14 +78,14 @@ button:hover {
 
 /* Стили для секций */
 .section {
-    margin: 10px 0; /* Отступы вокруг секций */
+    margin: 15px 0; /* Отступы вокруг секций */
 }
 
 /* Стили для полей с границей */
 fieldset {
     border: 2px dashed #68adf7; /* Пунктирная граница */
     border-radius: 10px; /* Закругление углов */
-    padding: 10px; /* Отступы внутри */
+    padding: 15px; /* Отступы внутри */
     background-color: #f0f8ff; /* Цвет фона поля */
 }
 
@@ -104,8 +117,8 @@ fieldset {
 /* Новые стили для контейнера секций */
 #sectionsContainer {
     border: 2px dashed #121212; /* Пунктирная граница контейнера */
-    padding: 10px; /* Отступы внутри контейнера */
-    margin-top: 15px; /* Отступ сверху */
+    padding: 15px; /* Отступы внутри контейнера */
+    margin-top: 20px; /* Отступ сверху */
     background-color: #f0f8ff; /* Цвет фона контейнера */
     display: none; /* Контейнер по умолчанию скрыт */
 }
@@ -114,7 +127,7 @@ fieldset {
 .attributes-container {
     display: flex; /* Использование flexbox */
     flex-wrap: wrap; /* Перенос элементов на следующую строку */
-    gap: 10px; /* Промежуток между элементами */
+    gap: 15px; /* Промежуток между элементами */
 }
 
 /* Стили для отдельного атрибута */
@@ -126,5 +139,13 @@ fieldset {
 /* Стили для полей ввода */
 input {
     width: 100%; /* Ширина 100% */
-    padding: 5px; /* Отступы внутри поля */
+    padding: 10px; /* Отступы внутри поля */
+    border: 1px solid #ccc; /* Обводка поля */
+    border-radius: 4px; /* Закругление углов */
+    transition: border-color 0.3s; /* Плавный переход цвета границы */
+}
+
+/* Эффект при фокусе на полях ввода */
+input:focus {
+    border-color: #6dab70; /* Изменение цвета границы при фокусе */
 }
