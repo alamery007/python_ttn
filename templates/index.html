@@ -7,120 +7,147 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Инициализация Select2 для всех необходимых селекторов, исключая "Вид перевозки", "Продукция" и "Организация-владелец автотранспорта"
+            $('#drivers, #raw_material, #delivery_method, #vladelec, #transport, #trailer, #senders, #addresses, #laboratory, #recipient').select2({
+                placeholder: "Поиск...",
+                allowClear: true
+            });
+        });
+    </script>
 </head>
 <body>
 <div style="text-align: center; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
     <h1 style="flex-grow: 1; margin: 0;">Заполните Товарно-Транспортную Накладную</h1>
     <a href="/data-entry">
-        <button type="button" style="padding: 5px 10px; font-size: 14px;">Внести новые данные</button>
+        <button type="button" style="padding: 8px 10px; font-size: 14px;">Внести новые данные</button>
     </a>
 </div>
 
-<fieldset style="border: 2px dashed black; padding: 10px; margin: 15px 0; border-radius: 5px; background-color: #f9f9f9;">
-    <form method="POST">
-        <div class="input-row">
-            <div class="input-group">
-                <label for="date">Выбери дату:</label>
-                <input type="date" id="date" name="date" required>
-            </div>
-            <div class="input-group">
-                <label for="ttn">Введите номер ТТН:</label>
-                <input type="text" id="ttn" name="ttn" required>
-            </div>
+<form method="POST">
+    <div class="input-row">
+        <div class="input-group">
+            <label for="date">Выбери дату:</label>
+            <input type="date" id="date" name="date" >
+        </div>
+        <div class="input-group">
+            <label for="ttn">Введите номер ТТН:</label>
+            <input type="text" id="ttn" name="ttn" >
+        </div>
+    </div>
+
+    <div class="input-row">
+        <div class="input-group">
+            <label for="delivery_method">Вид перевозки:</label>
+            <select id="delivery_method" name="delivery_method" >
+                <option value="">Выбрать:</option>
+                <option value="Доставка">Доставка</option>
+                <option value="Самовывоз">Самовывоз</option>
+            </select>
         </div>
 
-        <div class="input-row">
-            <div class="input-group">
-                <label for="delivery_method">Вид перевозки:</label>
-                <select id="delivery_method" name="delivery_method" required>
-                    <option value="">Выбрать:</option>
-                    <option value="Доставка">Доставка</option>
-                    <option value="Самовывоз">Самовывоз</option>
-                </select>
-            </div>
+        <div class="input-group">
+            <label for="raw_material">Продукция:</label>
+            <select id="raw_material" name="raw_material">
+                <option value="">Выбрать:</option>
+                <option value="Молоко сырое коровье">Молоко сырое коровье</option>
+                <option value="Молоко обезжиренное коровье">Молоко обезжиренное коровье</option>
+            </select>
+        </div>
+    </div>
 
-            <div class="input-group">
-                <label for="raw_material">Продукция:</label>
-                <select id="raw_material" name="raw_material">
-                    <option value="">Выбрать:</option>
-                    <option value="Молоко сырое коровье">Молоко сырое коровье</option>
-                    <option value="Молоко обезжиренное коровье">Молоко обезжиренное коровье</option>
-                </select>
-            </div>
+    <div class="input-group">
+            <label for="vladelec">Организация-владелец автотранспорта :</label>
+            <select id="vladelec" name="vladelec">
+                <option value="">Выбрать:</option>
+                <option value="ИНН 263521442945,ИП Волосникова Ангелина Анатольевна, РФ Ставропольский край,г.Ставрополь,ул.Южной Заставы,17а,тел:+78652257535">
+ИНН 263521442945,ИП Волосникова Ангелина Анатольевна, РФ Ставропольский край,г.Ставрополь,ул.Южной Заставы,17а,тел:+78652257535</option>
+            </select>
         </div>
 
-        <div class="input-row">
-            <div class="input-group">
-                <label for="drivers">Водитель:</label>
-                <select id="drivers" name="drivers" required>
-                    <option value="">Выбрать:</option>
-                    {% for driver in drivers %}
-                        <option value="{{ driver[0] }}">{{ driver[1] }}</option>
-                    {% endfor %}
-                </select>
-            </div>
+    <div class="input-row">
+        <div class="input-group">
+            <label for="drivers">Водитель:</label>
+            <select id="drivers" name="drivers" >
+                <option value="">Выбрать:</option>
+                {% for driver in drivers %}
+                    <option value="{{ driver[0] }}">{{ driver[1] }}</option>
+                {% endfor %}
+            </select>
         </div>
+    </div>
 
-        <label for="transport">Номер транспорта:</label>
-        <select id="transport" name="transport">
-            <option value="">Выбрать:</option>
-            {% for t in transports %}
-                <option value="{{ t }}">{{ t }}</option>
-            {% endfor %}
-        </select>
+    <label for="transport">Номер транспорта:</label>
+    <select id="transport" name="transport">
+        <option value="">Выбрать:</option>
+        {% for t in transports %}
+            <option value="{{ t }}">{{ t }}</option>
+        {% endfor %}
+    </select>
 
-        <label for="trailer">Номер прицепа:</label>
-        <select id="trailer" name="trailer" onchange="updateSections()" >
-            <option value="">Выберите номер прицепа</option>
-        </select>
+    <label for="trailer">Номер прицепа:</label>
+    <select id="trailer" name="trailer" onchange="updateSections()" >
+    </select>
+    <div id="sectionsContainer"></div> <!-- Контейнер для секций -->
 
-        <label for="physical_weight">Физический вес:</label>
-        <input type="text" id="physical_weight" name="physical_weight" readonly>
+    <!--
+    <label for="physical_weight">Физический вес:</label>
+    <input type="text" id="physical_weight" name="physical_weight" readonly>
+    -->
 
-        <div id="sectionsContainer"></div> <!-- Контейнер для секций -->
+    <label for="senders">Грузоотправитель:</label>
+    <select id="senders" name="senders"  >
+        <option value="">Выбрать:</option>
+        {% for sender in senders %}
+            <option value="{{ sender[0] }}">{{ sender[1] }}</option>
+        {% endfor %}
+    </select>
 
-        <label for="senders">Грузоотправитель:</label>
-        <select id="senders" name="senders" class="select2-taggable" required>
-            <option value="">Выбрать:</option>
-            {% for sender in senders %}
-                <option value="{{ sender[0] }}">{{ sender[1] }}</option>
-            {% endfor %}
-        </select>
+    <label for="addresses">Пункт погрузки:</label>
+    <select id="addresses" name="addresses">
+        <option value="">Выбрать:</option>
+        {% for address in addresses %}
+            <option value="{{ address.address }}">{{ address.address }}</option>
+        {% endfor %}
+    </select>
 
-        <label for="addresses">Пункт погрузки:</label>
-        <select id="addresses" name="addresses" class="select2-taggable" required>
-            <option value="">Выбрать:</option>
-        </select>
 
-        <label for="laboratory">Лаборант:</label>
-        <select id="laboratory" name="laboratory" required>
-            <option value="">Выбрать:</option>
-            {% for lab in laboratories %}
-                <option value="{{ lab.name }}">{{ lab.name }}</option>
-            {% endfor %}
-        </select>
+    <label for="laboratory">Лаборант:</label>
+    <select id="laboratory" name="laboratory" >
+        <option value="">Выбрать:</option>
+        {% for lab in laboratories %}
+            <option value="{{ lab.name }}">{{ lab.name }}</option>
+        {% endfor %}
+    </select>
 
-        <label for="recipient">Грузополучатель:</label>
-        <select id="recipient" name="recipient" required>
-            <option value="" disabled selected>Выбрать:</option>
-            {% for recipient in recipients %}
-                <option value="{{ recipient.recipient }}" data-inn="{{ recipient.inn }}" data-razgruzka="{{ recipient.razgruzka }}">
-                    {{ recipient.recipient }}
-                </option>
-            {% endfor %}
-        </select>
+    <label for="recipient">Грузополучатель:</label>
+    <select id="recipient" name="recipient" >
+        <option value="" disabled selected>Выбрать:</option>
+        {% for recipient in recipients %}
+            <option value="{{ recipient.recipient }}" data-inn="{{ recipient.inn }}" data-razgruzka="{{ recipient.razgruzka }}">
+                {{ recipient.recipient }}
+            </option>
+        {% endfor %}
+    </select>
 
-        <div id="hiddenFields"></div> <!-- Скрытые поля для inn и razgruzka -->
+    <div id="hiddenFields"></div> <!-- Скрытые поля для inn и razgruzka -->
 
-        <div class="button-group" style="margin-top: 16px;">
-            <button type="button" onclick="location.reload();">Сбросить все </button>
-            <button type="submit">Печать</button>
-        </div>
+    <label>Формат вывода:</label><br>
+    <input type="radio" id="excel" name="output_format" value="excel" checked>
+    <label for="excel">Excel</label><br>
 
-        <button type="button" class="whatsapp-button" onclick="alert('Будет позже!')">Отправить на WhatsApp</button>
-    </form>
+    <input type="radio" id="pdf" name="output_format" value="pdf">
+    <label for="pdf">PDF</label><br>
 
-</fieldset>
+    <div class="button-group" style="margin-top: 16px;">
+        <button type="button" onclick="location.reload();">Сбросить все </button>
+        <button type="submit">Печать</button>
+    </div>
+
+    <button type="button" class="whatsapp-button" onclick="alert('Будет позже!')">Отправить на WhatsApp</button>
+</form>
+
 </body>
 <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </html>

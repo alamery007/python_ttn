@@ -27,6 +27,15 @@ def get_laboratories():
     conn.close()
     return [{'id': row[0], 'name': row[1]} for row in laboratories]
 
+def get_addresses():
+    conn = db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, address FROM addresses")
+    addresses = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return [{'id': row[0], 'address': row[1]} for row in addresses]
+
 def get_delivery_data():
     conn = db_connection()
     cursor = conn.cursor()
@@ -71,6 +80,7 @@ def index():
     senders = []
     laboratories = get_laboratories()
     delivery_data = get_delivery_data()
+    addresses = get_addresses()
 
 
     # Получаем список водителей, транспорта и отправителей из базы данных
@@ -93,15 +103,15 @@ def index():
         driver_id = request.form.get('drivers', 'не указан')
         transport_number = request.form.get('transport', 'не указан')
         sender_id = request.form.get('senders', 'не указан')
-        address_id = request.form.get('addresses', 'не указан')
         trailer_id = request.form.get('trailer', 'не указан')
-        laboratory = request.form.get('laboratory', 'не указан')  # Получаем выбранного лаборанта
-        raw_material =request.form.get('raw_material', 'не указан')
+        raw_material = request.form.get('raw_material', 'не указан')
+        vladelec = request.form.get('vladelec', 'не указан')
         delivery_method = request.form.get('delivery_method', 'не указан')
-
+        addresses = request.form.get('addresses', 'не указан')
+        laboratory = request.form.get('laboratory')
+        output_format = request.form.get('output_format', 'excel')  # Получаем выбранный формат
 
         # Получаем номер ттн, дату и  разбиваем на число, месяц и год
-        laboratory = request.form.get('laboratory')
         ttn = request.form.get('ttn')  # Номер ТТН
         physical_weight = request.form.get('physical_weight')
         date_input = request.form.get('date')  # Получаем дату в формате YYYY-MM-DD
@@ -121,7 +131,7 @@ def index():
             weight = request.form.get(f'section_weight_{i}')
             section_weights.append(weight)
 
-        if driver_id and transport_number and sender_id and address_id and trailer_id:
+        if driver_id and transport_number and sender_id and trailer_id:
             # Получаем инициалы и полное имя водителя
             conn = db_connection()
             cursor = conn.cursor()
@@ -135,16 +145,13 @@ def index():
             cursor.execute("SELECT name FROM senders WHERE id=%s", (sender_id,))
             sender_name = cursor.fetchone()
 
-            cursor.execute("SELECT address FROM addresses WHERE id=%s", (address_id,))
-            address = cursor.fetchone()
-
             cursor.execute("SELECT trailer_number FROM trailers WHERE id=%s", (trailer_id,))
             trailer_number = cursor.fetchone()[0]  # Получаем номер прицепа
 
             cursor.close()
             conn.close()
 
-            if driver_info and brand and sender_name and address:
+            if driver_info and brand and sender_name:
                 # Загружаем существующий Excel файл
                 wb = load_workbook(r'C:\Users\oleg.d\PycharmProjects\New_project\Excel_Project\template.xlsx')
                 ws_main = wb.active  # Первый лист
@@ -156,9 +163,9 @@ def index():
                 ws_main["CY49"] = driver_info[0]  # Инициалы водителя
                 ws_main["K7"] = sender_name[0]  # Имя отправителя
                 ws_main["K18"] = sender_name[0]  # Имя отправителя
-                ws_main["K21"] = address[0]  # Адрес
-
+                ws_main["K21"] = addresses
                 ws_main["H30"] = raw_material
+                ws_main["W10"] = vladelec
                 ws_main["AX13"] = delivery_method
                 ws_main["K23"] = request.form.get('recipient')  # Получатель
                 ws_main["H15"] = inn  # ИНН
@@ -177,7 +184,7 @@ def index():
                 for j in range(current_row, 42):
                     ws_main[f"A{j}"] = None
                     ws_main[f"D{j}"] = None
-                    ws_main["BO35"] = physical_weight # сумма веса с секций
+                    #ws_main["BO35"] = physical_weight # сумма веса с секций
 
                 ws_main["K8"] = brand[0]  # Заполняем ячейку CO4 (марка)
                 ws_main["AM8"] = transport_number  # Заполняем ячейку EL4 (номер)
@@ -242,10 +249,15 @@ def index():
                 excel_path = r'C:\Users\oleg.d\PycharmProjects\New_project\Excel_Project\updated_drivers_info.xlsx'
                 wb.save(excel_path)
 
-                # Генерация PDF из заполненного Excel
-                pdf_path = convert_excel_to_pdf(excel_path)
+                if output_format == 'pdf':
+                    # Генерация PDF из заполненного Excel
+                    pdf_path = convert_excel_to_pdf(excel_path)
+                    return send_file(pdf_path, as_attachment=False, download_name='document.pdf',
+                                     mimetype='application/pdf')
+                elif output_format == 'excel':
+                    return send_file(excel_path, as_attachment=True, download_name='document.xlsx',
+                                     mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
-                return send_file(pdf_path, as_attachment=False, download_name='document.pdf', mimetype='application/pdf')
     # Передаем данные на шаблон
     return render_template(
         'index.html',
@@ -253,7 +265,8 @@ def index():
         transports=[t[0] for t in transports],
         senders=senders,
         laboratories=laboratories,  # Передаем данные лаборантов
-        recipients=delivery_data
+        recipients=delivery_data,
+        addresses=addresses
     )
 
 def convert_excel_to_pdf(excel_path):
@@ -267,11 +280,15 @@ def convert_excel_to_pdf(excel_path):
     excel.Application.Quit()
 
     return pdf_path
-#Новый маршрут для обработки POST-запроса, который будет получать данные из формы и записывать их в базу данных.
 @app.route('/submit-data', methods=['POST'])
 def submit_data():
     driver_full_name = request.form.get('driver_full_name')
-    driver_initials = request.form.get('driver_initials')
+    # Генерация инициалов
+    names = driver_full_name.split()
+    if len(names) >= 3:
+        driver_initials = f"{names[0]} {names[1][0]}.{names[2][0]}."
+    else:
+        return "Недостаточно данных для генерации инициалов."
 
     conn = db_connection()
     cursor = conn.cursor()
@@ -284,19 +301,7 @@ def submit_data():
     cursor.close()
     conn.close()
 
-    return "Данные успешно сохранены!"  # Можно заменить на redirect на нужную страницу
-@app.route('/get_addresses/<int:sender_id>', methods=['GET'])
-def get_addresses(sender_id):
-    conn = db_connection()
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT id, address FROM addresses WHERE sender_id = %s", (sender_id,))
-    addresses = cursor.fetchall()
-
-    cursor.close()
-    conn.close()
-    return jsonify(addresses)
-
+    return jsonify({"message": "Данные успешно сохранены! Нажми назад и обнови предыдущую страницу!"})  # Возвращаем JSON-ответ
 @app.route('/trailers', methods=['GET'])
 def trailers():
     trailer_data = get_trailer_data()

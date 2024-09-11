@@ -12,7 +12,7 @@ let trailers = [];
                     trailers.forEach(trailer => {
                         trailerSelect.append(`<option value="${trailer.id}">${trailer.number}</option>`);
                     });
-                    trailerSelect.select2({ tags: true });
+                    trailerSelect.select({ tags: true });
                 },
                 error: function() {
                     alert('Ошибка при загрузке данных о прицепах');
@@ -112,7 +112,6 @@ let trailers = [];
             }
         }
 
-
         $(document).ready(function() {
             $('#recipient').change(function() {
                 const selectedOption = $(this).find(':selected');
@@ -145,10 +144,4 @@ let trailers = [];
                 }
             });
 
-            // Включение select2 с возможностью добавления новых значений
-            $('.select2-taggable').select2({
-                    tags: true
-                });
-
-            $('#delivery_method, #raw_material, #drivers, #transport, #laboratory, #recipient').select2({ tags: true });
         });

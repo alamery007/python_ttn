@@ -1,7 +1,8 @@
 /* Основные стили страницы */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Современный шрифт */
-    margin: 20px; /* Отступы вокруг страницы */
+    margin: 10px; /* Отступы вокруг страницы */
+    padding: 10px; /* Отступы внутри */
     background-color: #e9eff2; /* Облегченный фоновый цвет */
 }
 
@@ -15,14 +16,14 @@ h1 {
 
 /* Стили для формы */
 form {
-    max-width: 800px; /* Уменьшенная максимальная ширина формы */
+    max-width: 1400px; /* Уменьшенная максимальная ширина формы */
     margin: auto; /* Центрирование формы */
     display: flex; /* Использование flexbox */
     flex-direction: column; /* Вертикальное расположение элементов */
     background: white; /* Фон формы */
     padding: 20px; /* Внутренние отступы */
     border-radius: 8px; /* Закругление углов */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Легкая тень */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3); /* Легкая тень */
 }
 
 /* Стили для меток формы */
@@ -30,13 +31,17 @@ label {
     margin: 10px 0 5px; /* Отступы вокруг меток */
     font-weight: bold; /* Полужирный текст */
 }
-
+.hint {
+    font-size: 0.9em;
+    color: #6c757d; /* Цвет серого текста */
+    margin-top: 5px;
+}
 /* Стили для полей ввода и выпадающих списков */
 select, input[type="text"], input[type="date"], input[type="number"] {
     padding: 12px; /* Увеличенные отступы внутри полей */
-    margin-bottom: 15px; /* Отступ снизу */
+    margin-bottom: 5px; /* Отступ снизу */
     border: 1px solid #ccc; /* Обводка поля */
-    border-radius: 4px; /* Закругление углов */
+    border-radius: 5px; /* Закругление углов */
     width: 100%; /* Ширина 100% от родительского элемента */
     box-sizing: border-box; /* Учет отступов и границ в общей ширине */
     transition: border-color 0.3s; /* Плавный переход цвета границы */
@@ -46,14 +51,41 @@ select, input[type="text"], input[type="date"], input[type="number"] {
 select:focus, input[type="text"]:focus, input[type="date"]:focus, input[type="number"]:focus {
     border-color: #6dab70; /* Изменение цвета границы при фокусе */
 }
+ .radio-group {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+        }
 
+        .radio-group input[type="radio"] {
+            display: none;
+        }
+
+        .radio-group label {
+            display: inline-block;
+            background-color: #f0f0f0;
+            padding: 10px 20px;
+            border-radius: 30px;
+            margin: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .radio-group input[type="radio"]:checked + label {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .radio-group label:hover {
+            background-color: #d0d0d0;
+        }
 /* Стили для кнопок */
 button {
-    padding: 12px; /* Увеличенные отступы внутри кнопки */
+    padding: 10px; /* Увеличенные отступы внутри кнопки */
     background-color: #6dab70; /* Цвет фона кнопки */
     color: white; /* Цвет текста кнопки */
     border: none; /* Без обводки */
-    border-radius: 4px; /* Закругление углов */
+    border-radius: 6px; /* Закругление углов */
     cursor: pointer; /* Курсор указателя при наведении */
     width: 100%; /* Ширина 100% */
     margin-bottom: 10px; /* Отступ ниже кнопки */
@@ -79,14 +111,6 @@ button:hover {
 /* Стили для секций */
 .section {
     margin: 15px 0; /* Отступы вокруг секций */
-}
-
-/* Стили для полей с границей */
-fieldset {
-    border: 2px dashed #68adf7; /* Пунктирная граница */
-    border-radius: 10px; /* Закругление углов */
-    padding: 15px; /* Отступы внутри */
-    background-color: #f0f8ff; /* Цвет фона поля */
 }
 
 /* Группировка ввода */
@@ -117,17 +141,18 @@ fieldset {
 /* Новые стили для контейнера секций */
 #sectionsContainer {
     border: 2px dashed #121212; /* Пунктирная граница контейнера */
-    padding: 15px; /* Отступы внутри контейнера */
+    padding: 5px; /* Отступы внутри контейнера */
     margin-top: 20px; /* Отступ сверху */
-    background-color: #f0f8ff; /* Цвет фона контейнера */
+    background-color: #white; /* Цвет фона контейнера */
     display: none; /* Контейнер по умолчанию скрыт */
+    border-radius: 10px; /* Закругление углов */
 }
 
 /* Стили для контейнера атрибутов */
 .attributes-container {
     display: flex; /* Использование flexbox */
     flex-wrap: wrap; /* Перенос элементов на следующую строку */
-    gap: 15px; /* Промежуток между элементами */
+    gap: 5px; /* Промежуток между элементами */
 }
 
 /* Стили для отдельного атрибута */

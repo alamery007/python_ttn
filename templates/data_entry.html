@@ -10,14 +10,11 @@
 
 </head>
 <body>
-<fieldset>
-    <h1>Введите данные</h1>
+    <h1>Введите новые данные</h1>
     <form method="POST" action="/submit-data"> <!-- Укажите маршрут для обработки данных -->
         <label for="driver_full_name">Полное имя водителя:</label>
         <input type="text" id="driver_full_name" name="driver_full_name" required>
-
-        <label for="driver_initials">Инициалы водителя:</label>
-        <input type="text" id="driver_initials" name="driver_initials" required>
+        <small class="hint">Пример: Иванов Иван Иванович</small>
 
         <label for="sender_name">Имя отправителя:</label>
         <input type="text" id="sender_name" name="sender_name">
@@ -43,20 +40,51 @@
         </div>
     </form>
         <script>
-            $(document).ready(function() {
-                $('form').on('submit', function(event) {
-                    const fullName = $('#driver_full_name').val().trim();
-                    const nameParts = fullName.split(' ');
+        $(document).ready(function() {
+            // Создаем элемент для уведомлений
+            const notification = $('<div id="notification"></div>').css({
+                'display': 'none', // Скрываем изначально
+                'position': 'absolute',
+                'top': '10px',
+                'left': '50%',
+                'transform': 'translateX(-50%)',
+                'background-color': '#e0ffe0',  // Зелёный фон по умолчанию
+                'border': '1px solid #4caf50',    // Зелёная рамка
+                'padding': '10px',
+                'margin': '10px 0',
+                'border-radius': '5px',
+                'z-index': 1000
+            });
 
-                    // Проверка на количество слов в полном имени (3 части: Фамилия, Имя, Отчество)
-                    if (nameParts.length !== 3) {
-                        alert("Введи Фамилию, Имя и Отчество с заглавных Букв.");
-                        event.preventDefault(); // Отменить отправку формы
+            $('body').prepend(notification); // Добавляем его в верхнюю часть страницы
+
+            $('form').on('submit', function(event) {
+                // Убираем проверки
+                // Отправка формы
+                $.ajax({
+                    type: 'POST',
+                    url: $(this).attr('action'),
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        notification.text(response.message).css({
+                            'display': 'block',
+                            'background-color': '#e0ffe0',  // Зелёный фон
+                            'border': '1px solid #4caf50'    // Зелёная рамка
+                        });
+                    },
+                    error: function() {
+                        notification.text('Произошла ошибка при сохранении данных.').css({
+                            'display': 'block',
+                            'background-color': '#ffe0e0',  // Красный фон
+                            'border': '1px solid #f44336'   // Красная рамка
+                        });
                     }
                 });
-            });
-        </script>
 
-</fieldset>
+                event.preventDefault(); // Отменяем стандартное поведение формы
+            });
+        });
+
+        </script>
 </body>
 </html>
