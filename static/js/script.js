@@ -111,6 +111,27 @@ let trailers = [];
                 container.style.display = 'none'; // Скрываем контейнер, если прицеп не выбран
             }
         }
+        $('form').on('submit', function(event) {
+            event.preventDefault(); // Предотвращаем стандартное поведение
+
+            $.ajax({
+                url: '/',
+                type: 'POST',
+                data: $(this).serialize(), // Сериализовать данные формы
+                success: function(response) {
+                    if (response.pdf_url) {
+                        // Открываем PDF в новой вкладке
+                        window.open('/files/' + response.pdf_url, '_blank');
+                    } else if (response.excel_url) {
+                        // Перенаправляем на Excel
+                        window.location.href = '/files/' + response.excel_url;
+                    }
+                },
+                error: function() {
+                    alert('Ошибка при отправке формы.');
+                }
+            });
+        });
 
         $(document).ready(function() {
             $('#recipient').change(function() {
