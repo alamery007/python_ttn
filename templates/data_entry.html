@@ -10,45 +10,53 @@
 
 </head>
 <body>
-    <h1>Введите новые данные</h1>
-    <form method="POST" action="/submit-data"> <!-- Укажите маршрут для обработки данных -->
+    <h1>Добавьте новые данные в базу поиска</h1>
+
+    <!-- Форма для ввода данных водителя -->
+    <form method="POST" action="/submit-driver-data">
+        <h2>Данные водителя</h2>
         <label for="driver_full_name">Полное имя водителя:</label>
-        <input type="text" id="driver_full_name" name="driver_full_name" required>
+        <input type="text" id="driver_full_name" name="driver_full_name">
         <small class="hint">Пример: Иванов Иван Иванович</small>
+        <button type="submit">Сохранить данные водителя</button>
+    </form>
 
-                <label for="trailer_number">Номер прицепа:</label><br>
-        <input type="text" id="trailer_number" name="trailer_number" required><br>
-
-        <label for="total">Всего:</label><br>
-        <input type="number" id="total" name="total" required><br>
-
-        <label for="section1">Секция 1:</label><br>
-        <input type="number" id="section1" name="section1"><br>
-
-        <label for="section2">Секция 2:</label><br>
-        <input type="number" id="section2" name="section2"><br>
-
-        <label for="section3">Секция 3:</label><br>
-        <input type="number" id="section3" name="section3"><br>
-
-        <label for="section4">Секция 4:</label><br>
-        <input type="number" id="section4" name="section4"><br>
-
-        <label for="section5">Секция 5:</label><br>
-        <input type="number" id="section5" name="section5"><br>
-
-        <label for="section6">Секция 6:</label><br>
-        <input type="number" id="section6" name="section6"><br>
-
-        <label for="section7">Секция 7:</label><br>
-        <input type="number" id="section7" name="section7"><br><br>
+    <!-- Форма для ввода данных транспорта -->
+    <form method="POST" action="/submit-transport-data">
+        <h2>Данные транспорта</h2>
+        <label for="transport_number">Номер транспорта:</label>
+        <input type="text" id="transport_number" name="transport_number">
+        <small class="hint">Пример: М789ВЕ93</small>
 
 
-        <div class="button-group">
-            <button type="submit">Сохранить данные</button>
-            <button type="button" onclick="window.history.back();">Назад</button> <!-- Кнопка для возврата на предыдущую страницу -->
+        <label for="brand">Марка транспорта:</label>
+        <input type="text" id="brand" name="brand">
+        <small class="hint">Пример: Mercedes-Benz или DAF или Газель</small>
+        <button type="submit">Сохранить данные транспорта</button>
+    </form>
+
+
+    <form method="POST">
+        <h2>##Данные о прицепах##</h2>
+        <label for="numbers">Номер прциепа:</label>
+        <input type="text" id="numbers" name="numbers">
+        <small class="hint">Пример: ЕЕ5665 26</small>
+        <button type="submit">Сохранить данные о прицепе</button>
+    </form>
+
+
+    <form method="POST" action="/submit-laboratory">
+        <h2>Данные лаборанта</h2>
+        <label for="laboratory">Фамилия и инициалы лаборанта:</label>
+        <input type="text" id="laboratory" name="laboratory">
+        <small class="hint">Пример: Кузьмин П.А.</small>
+        <button type="submit">Сохранить данные водителя</button>
+        <div style="text-align: center; margin-top: 10px;">
+            <button onclick="window.history.back();">Назад</button>
         </div>
     </form>
+
+
         <script>
         $(document).ready(function() {
             // Создаем элемент для уведомлений

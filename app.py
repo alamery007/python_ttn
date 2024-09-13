@@ -287,7 +287,7 @@ def convert_excel_to_pdf(excel_path):
 def uploaded_file(filename):
     return send_file(r'C:\Users\oleg.d\PycharmProjects\New_project\Excel_Project\\' + filename, as_attachment=True)
 
-@app.route('/submit-data', methods=['POST'])
+@app.route('/submit-driver-data', methods=['POST'])
 def submit_data():
     driver_full_name = request.form.get('driver_full_name')
     # Генерация инициалов
@@ -295,7 +295,7 @@ def submit_data():
     if len(names) >= 3:
         driver_initials = f"{names[0]} {names[1][0]}.{names[2][0]}."
     else:
-        return "Недостаточно данных для генерации инициалов."
+        return jsonify({"message": "Недостаточно данных для генерации инициалов."}), 400
 
     conn = db_connection()
     cursor = conn.cursor()
@@ -308,7 +308,45 @@ def submit_data():
     cursor.close()
     conn.close()
 
-    return jsonify({"message": "Данные успешно сохранены! Нажми назад и обнови предыдущую страницу!"})  # Возвращаем JSON-ответ
+    return jsonify({"message": "Данные водителя успешно сохранены! Нажми назад и обнови предыдущую страницу!"})  # Возвращаем JSON-ответ
+
+@app.route('/submit-transport-data', methods=['POST'])
+def submit_transport_data():
+    transport_number = request.form.get('transport_number')
+    brand = request.form.get('brand')
+    # Проверка на наличие каждого из обязательных полей
+    if not transport_number or not brand:
+        return jsonify({"message": "Не указаны все обязательные данные для транспорта."}), 400
+
+    conn = db_connection()
+    cursor = conn.cursor()
+    cursor.execute('INSERT INTO transport (transport_number, brand) VALUES (%s, %s)', (transport_number, brand))
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return jsonify({"message": "Данные транспорта успешно сохранены! Нажми назад и обнови предыдущую страницу!"})
+
+
+@app.route('/submit-laboratory', methods=['POST'])
+def submit_laboratory_data():
+    laboratory_name = request.form.get('laboratory')
+    # Проверка на наличие обязательного поля
+    if not laboratory_name:
+        return jsonify({"message": "Не указаны все обязательные данные для лаборанта."}), 400
+
+    conn = db_connection()
+    cursor = conn.cursor()
+
+    # Вставка данных в таблицу laboratory
+    cursor.execute('INSERT INTO laboratory (name) VALUES (%s)', (laboratory_name,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return jsonify({"message": "Данные лаборанта успешно сохранены! Нажми назад и обнови предыдущую страницу!"})
+
+
 @app.route('/trailers', methods=['GET'])
 def trailers():
     trailer_data = get_trailer_data()

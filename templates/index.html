@@ -21,7 +21,7 @@
 <div style="text-align: center; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
     <h1 style="flex-grow: 1; margin: 0;">Заполните Товарно-Транспортную Накладную</h1>
     <a href="/data-entry">
-        <button type="button" style="padding: 8px 10px; font-size: 14px;">Внести новые данные</button>
+        <button type="button" style="padding: 8px 10px; font-size: 14px;">Добавить новые данные</button>
     </a>
 </div>
 
@@ -57,34 +57,36 @@
         </div>
     </div>
 
-    <div class="input-group">
-            <label for="vladelec">Организация-владелец автотранспорта :</label>
-            <select id="vladelec" name="vladelec">
-                <option value="">Выбрать:</option>
-                <option value="ИНН 263521442945,ИП Волосникова Ангелина Анатольевна, РФ Ставропольский край,г.Ставрополь,ул.Южной Заставы,17а,тел:+78652257535">
-ИНН 263521442945,ИП Волосникова Ангелина Анатольевна, РФ Ставропольский край,г.Ставрополь,ул.Южной Заставы,17а,тел:+78652257535</option>
-            </select>
-        </div>
-
     <div class="input-row">
         <div class="input-group">
             <label for="drivers">Водитель:</label>
-            <select id="drivers" name="drivers" >
+            <select id="drivers" name="drivers">
                 <option value="">Выбрать:</option>
                 {% for driver in drivers %}
                     <option value="{{ driver[0] }}">{{ driver[1] }}</option>
                 {% endfor %}
             </select>
         </div>
+
+        <div class="input-group">
+            <label for="transport">Номер транспорта:</label>
+            <select id="transport" name="transport">
+                <option value="">Выбрать:</option>
+                {% for t in transports %}
+                    <option value="{{ t }}">{{ t }}</option>
+                {% endfor %}
+            </select>
+        </div>
     </div>
 
-    <label for="transport">Номер транспорта:</label>
-    <select id="transport" name="transport">
-        <option value="">Выбрать:</option>
-        {% for t in transports %}
-            <option value="{{ t }}">{{ t }}</option>
-        {% endfor %}
-    </select>
+    <div class="input-group">
+        <label for="vladelec">Организация-владелец автотранспорта :</label>
+        <select id="vladelec" name="vladelec">
+            <option value="">Выбрать:</option>
+            <option value="ИНН 263521442945,ИП Волосникова Ангелина Анатольевна, РФ Ставропольский край,г.Ставрополь,ул.Южной Заставы,17а,тел:+78652257535">
+ИНН 263521442945,ИП Волосникова Ангелина Анатольевна, РФ Ставропольский край,г.Ставрополь,ул.Южной Заставы,17а,тел:+78652257535</option>
+        </select>
+    </div>
 
     <label for="trailer">Номер прицепа:</label>
     <select id="trailer" name="trailer" onchange="updateSections()" >
@@ -133,12 +135,20 @@
 
     <div id="hiddenFields"></div> <!-- Скрытые поля для inn и razgruzka -->
 
-    <label>Формат вывода:</label><br>
-    <input type="radio" id="excel" name="output_format" value="excel" checked>
-    <label for="excel">Excel</label><br>
+    <div class="output-format" style="display: flex; align-items: center; gap: 20px;">
+        <label>Формат вывода:</label>
 
-    <input type="radio" id="pdf" name="output_format" value="pdf">
-    <label for="pdf">PDF</label><br>
+        <div style="display: flex; align-items: center;">
+            <input type="radio" id="excel" name="output_format" value="excel" checked>
+            <label for="excel">Excel</label>
+        </div>
+
+        <div style="display: flex; align-items: center;">
+            <input type="radio" id="pdf" name="output_format" value="pdf">
+            <label for="pdf">PDF</label>
+        </div>
+    </div>
+
 
     <div class="button-group" style="margin-top: 16px;">
         <button type="button" onclick="location.reload();">Сбросить все </button>

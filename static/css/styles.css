@@ -20,10 +20,14 @@ form {
     margin: auto; /* Центрирование формы */
     display: flex; /* Использование flexbox */
     flex-direction: column; /* Вертикальное расположение элементов */
-    background: white; /* Фон формы */
+    background: #ffffff; /* Фон формы */
     padding: 20px; /* Внутренние отступы */
-    border-radius: 8px; /* Закругление углов */
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3); /* Легкая тень */
+    border-radius: 10px; /* Закругление углов */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); /* Легкая тень */
+    transition: transform 0.3s, box-shadow 0.3s; /* Плавные переходы */
+}
+form:hover {
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5); /* Увеличение тени при наведении */
 }
 
 /* Стили для меток формы */
@@ -35,6 +39,10 @@ label {
     font-size: 0.9em;
     color: #6c757d; /* Цвет серого текста */
     margin-top: 5px;
+}
+/* Добавлен отступ между формами */
+form {
+    margin-bottom: 20px; /* Увеличьте значение для большего отступа */
 }
 /* Стили для полей ввода и выпадающих списков */
 select, input[type="text"], input[type="date"], input[type="number"] {
