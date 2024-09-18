@@ -3,6 +3,7 @@ import psycopg2
 from openpyxl import load_workbook
 from datetime import datetime
 import pythoncom
+import re
 import win32com.client as win32  # Добавлено для конвертации Excel в PDF
 #from io import BytesIO
 #from fpdf import FPDF
@@ -60,7 +61,6 @@ def get_trailer_data():
 def get_initials(driver_id):
     conn = db_connection()
     cursor = conn.cursor()
-
     cursor.execute("SELECT initials FROM drivers WHERE id = %s", (driver_id,))
     initials = cursor.fetchone()
 
@@ -72,7 +72,6 @@ def get_initials(driver_id):
     else:
         return jsonify({'initials': ''})
 
-
 @app.route('/', methods=['GET', 'POST'])
 def index():
     drivers = []
@@ -82,17 +81,14 @@ def index():
     delivery_data = get_delivery_data()
     addresses = get_addresses()
 
-
     # Получаем список водителей, транспорта и отправителей из базы данных
     conn = db_connection()
     cursor = conn.cursor()
 
     cursor.execute("SELECT id, full_name FROM drivers")
     drivers = cursor.fetchall()
-
     cursor.execute("SELECT transport_number FROM transport")
     transports = cursor.fetchall()
-
     cursor.execute("SELECT id, name FROM senders")
     senders = cursor.fetchall()
 
@@ -158,7 +154,6 @@ def index():
         cursor.close()
         conn.close()
 
-
         wb = load_workbook(r'C:\Users\oleg.d\PycharmProjects\New_project\Excel_Project\template.xlsx')
         ws_main = wb.active  # Первый лист
         #ws_second = wb['стр2']  # Замените на фактическое имя второго листа
@@ -180,17 +175,19 @@ def index():
         ws_main["BD8"] = trailer_number  # Номер прицепа
         ws_main["AN49"] = laboratory  # Номер прицепа
         current_row = 35  # Начальная строка для заполнения
+
         for i, weight in enumerate(section_weights):
             if weight:  # Если вес секции существует
                 ws_main[f"A{current_row}"] = i + 1  # Номер любой секции
                 ws_main[f"D{current_row}"] = weight  # Заполнение веса секции
+                ws_main[f"BL{current_row}"] = i + 1  # Запись номера секции в ячейку BL
                 current_row += 1  # Переход к следующему ряду
 
         # Очищаем оставшиеся ячейки (A38-A41) если они не заполнены
         for j in range(current_row, 42):
             ws_main[f"A{j}"] = None
             ws_main[f"D{j}"] = None
-            #ws_main["BO35"] = physical_weight # сумма веса с секций
+            ws_main["E43"] = physical_weight # сумма веса с секций
 
         ws_main["K8"] = brand[0]  # Заполняем ячейку CO4 (марка)
         ws_main["AM8"] = transport_number  # Заполняем ячейку EL4 (номер)
@@ -269,7 +266,7 @@ def index():
         senders=senders,
         laboratories=laboratories,  # Передаем данные лаборантов
         recipients=delivery_data,
-        addresses=addresses
+        addresses=addresses,
     )
 
 def convert_excel_to_pdf(excel_path):
@@ -290,10 +287,13 @@ def uploaded_file(filename):
 @app.route('/submit-driver-data', methods=['POST'])
 def submit_data():
     driver_full_name = request.form.get('driver_full_name')
+    # Приводим полное имя к формату "С Заглавной Буквы" для каждого слова
+    driver_full_name = driver_full_name.title()
+
     # Генерация инициалов
     names = driver_full_name.split()
     if len(names) >= 3:
-        driver_initials = f"{names[0]} {names[1][0]}.{names[2][0]}."
+        driver_initials = f"{names[0]} {names[1][0].upper()}.{names[2][0].upper()}."
     else:
         return jsonify({"message": "Недостаточно данных для генерации инициалов."}), 400
 
@@ -310,23 +310,60 @@ def submit_data():
 
     return jsonify({"message": "Данные водителя успешно сохранены! Нажми назад и обнови предыдущую страницу!"})  # Возвращаем JSON-ответ
 
+@app.route('/submit-address' , methods=['POST'])
+def submit_address():
+    address = request.form.get('address')
+    if not address:
+        return jsonify({"message": "Не указаны все обязательные данные для лаборанта."}), 400
+    conn = db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('INSERT INTO addresses (address) VALUES (%s)', (address,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return jsonify({"message": "Данные о пункте погрузки успешно сохранены! Нажми назад и обнови предыдущую страницу!"})
+
+@app.route('/submit-senders' , methods=['POST'])
+def submit_senders():
+    name = request.form.get('senders')
+    if not name:
+        return  jsonify({"message": "Не указаны все обязательные данные для лаборанта."}), 400
+    conn = db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('INSERT INTO senders (name) VALUES (%s)', (name,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return jsonify({"message": "Данные о грузоотправителе успешно сохранены! Нажми назад и обнови предыдущую страницу!"})
+
 @app.route('/submit-transport-data', methods=['POST'])
 def submit_transport_data():
-    transport_number = request.form.get('transport_number')
+    transport_number = request.form.get('transport_number', '').strip()  # Удаляем пробелы
     brand = request.form.get('brand')
     # Проверка на наличие каждого из обязательных полей
     if not transport_number or not brand:
         return jsonify({"message": "Не указаны все обязательные данные для транспорта."}), 400
 
-    conn = db_connection()
-    cursor = conn.cursor()
-    cursor.execute('INSERT INTO transport (transport_number, brand) VALUES (%s, %s)', (transport_number, brand))
-    conn.commit()
-    cursor.close()
-    conn.close()
+    # Приведение данных к верхнему регистру
+    transport_number = transport_number.upper()
+
+    try:
+        conn = db_connection()
+        cursor = conn.cursor()
+        cursor.execute('INSERT INTO transport (transport_number, brand) VALUES (%s, %s)', (transport_number, brand))
+        conn.commit()
+    except Exception as e:
+        return jsonify({"message": f"Ошибка при сохранении данных: {str(e)}"}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
 
     return jsonify({"message": "Данные транспорта успешно сохранены! Нажми назад и обнови предыдущую страницу!"})
-
 
 @app.route('/submit-laboratory', methods=['POST'])
 def submit_laboratory_data():
@@ -347,6 +384,60 @@ def submit_laboratory_data():
     return jsonify({"message": "Данные лаборанта успешно сохранены! Нажми назад и обнови предыдущую страницу!"})
 
 
+@app.route('//submit-delivery', methods=['POST'])
+def submit_delivery():
+    recipient = request.form.get('recipient')
+    inn = request.form.get('inn')
+    razgruzka = request.form.get('razgruzka')
+    # Проверка на наличие каждого из обязательных полей
+    if not recipient or not inn or not razgruzka:
+        return jsonify({"message": "Не указаны все обязательные данные для транспорта."}), 400
+
+    conn = db_connection()
+    cursor = conn.cursor()
+    cursor.execute('INSERT INTO delivery (recipient, inn, razgruzka) VALUES (%s, %s, %s)', (recipient, inn, razgruzka))
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return jsonify({"message": "Данные о грузополучателе успешно сохранены! Нажми назад и обнови предыдущую страницу!"})
+
+@app.route('/submit-trailer-data', methods=['POST'])
+def submit_trailer_data():
+    trailer_number = request.form.get('trailer_number')
+    section1 = request.form.get('section1') or None
+    section2 = request.form.get('section2') or None
+    section3 = request.form.get('section3') or None
+    section4 = request.form.get('section4') or None
+    section5 = request.form.get('section5') or None
+    section6 = request.form.get('section6') or None
+    section7 = request.form.get('section7') or None
+
+    # Преобразуем все данные к верхнему регистру
+    trailer_number = trailer_number.upper() if trailer_number else None
+    section1 = section1.upper() if section1 else None
+    section2 = section2.upper() if section2 else None
+    section3 = section3.upper() if section3 else None
+    section4 = section4.upper() if section4 else None
+    section5 = section5.upper() if section5 else None
+    section6 = section6.upper() if section6 else None
+    section7 = section7.upper() if section7 else None
+
+    conn = db_connection()
+    cursor = conn.cursor()
+
+    # Выполняем вставку в таблицу trailers
+    cursor.execute("""
+        INSERT INTO trailers (trailer_number, section1, section2, section3, section4, section5, section6, section7)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+    """, (trailer_number, section1, section2, section3, section4, section5, section6, section7))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return jsonify({"message": "Данные о прицепе успешно сохранены!"})
+
 @app.route('/trailers', methods=['GET'])
 def trailers():
     trailer_data = get_trailer_data()
@@ -356,7 +447,6 @@ def trailers():
 def data_entry():
     # Здесь вы можете определить логику, которую хотите использовать на странице ввода данных.
     return render_template('data_entry.html')  # Создайте новый шаблон для этой страницы
-
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -30,17 +30,39 @@
 
 
         <label for="brand">Марка транспорта:</label>
-        <input type="text" id="brand" name="brand">
-        <small class="hint">Пример: Mercedes-Benz или DAF или Газель</small>
+        <select id="brand" name="brand">
+            <option value="">Выбрать:</option>
+            <option value="Газель">Газель</option>
+            <option value="DAF">DAF</option>
+            <option value="MAN">MAN</option>
+            <option value="Scania">Scania</option>
+            <option value="Mercedes-Benz">Mercedes-Benz</option>
+            <option value="КАМАЗ">КАМАЗ</option>
+            <option value="VOLVO">VOLVO</option>
+        </select>
         <button type="submit">Сохранить данные транспорта</button>
     </form>
 
 
-    <form method="POST">
-        <h2>##Данные о прицепах##</h2>
-        <label for="numbers">Номер прциепа:</label>
-        <input type="text" id="numbers" name="numbers">
+    <form method="POST" action="/submit-trailer-data">
+        <h2>Данные о прицепах - <span style="color: red;">Заполняются только существующие секции! Если секции нет оставить ее пустой!</span></h2>
+        <label for="trailer_number">Номер прицепа:</label>
+        <input type="text" id="trailer_number" name="trailer_number">
         <small class="hint">Пример: ЕЕ5665 26</small>
+        <label for="section1">Вес секции 1:</label>
+        <input type="text" id="section1" name="section1">
+        <label for="section2">Вес секции 2:</label>
+        <input type="text" id="section2" name="section2">
+        <label for="section3">Вес секции 3:</label>
+        <input type="text" id="section3" name="section3">
+        <label for="section4">Вес секции 4:</label>
+        <input type="text" id="section4" name="section4">
+        <label for="section5">Вес секции 5:</label>
+        <input type="text" id="section5" name="section5">
+        <label for="section6">Вес секции 6:</label>
+        <input type="text" id="section6" name="section6">
+        <label for="section7">Вес секции 7:</label>
+        <input type="text" id="section7" name="section7">
         <button type="submit">Сохранить данные о прицепе</button>
     </form>
 
@@ -51,6 +73,45 @@
         <input type="text" id="laboratory" name="laboratory">
         <small class="hint">Пример: Кузьмин П.А.</small>
         <button type="submit">Сохранить данные водителя</button>
+    </form>
+
+    <form method="POST" action="/submit-senders">
+        <h2>Грузоотправитель</h2>
+        <label for="senders">Грузоотправитель</label>
+        <input type="text" id="senders" name="senders">
+        <small class="hint">Пример 1: ИП Баранов Михаил Иванович</small>
+        <small class="hint">Пример 2: ООО "Агростарт"</small>
+        <button type="submit">Сохранить грузоотправителя</button>
+    </form>
+
+    <form method="POST" action="/submit-address">
+        <h2>Пункт погрузки</h2>
+        <label for="address">Пункт погрузки:</label>
+        <input type="text" id="address" name="address">
+        <small class="hint">Пример 1: РФ, СК, Благодарненский район, с. Спасское, ул. Советская, д. 51</small>
+        <small class="hint">Пример 2: РФ, КК, Новопокровский район, ст-ца Новопокровская, пер. Садовый, д. 36</small>
+        <small class="hint">Пример 3: РФ, РО, Зерноградский район, х. Путь Правды</small>
+        <button type="submit">Сохранить данные пункта погрузки</button>
+    </form>
+
+    <form method="POST" action="/submit-delivery">
+        <h2>Данные о грузополучателе</h2>
+        <label for="recipient">Ввести по примеру:</label>
+        <input type="text" id="recipient" name="recipient">
+        <small class="hint">Пример: АО "Молочный комбинат "Ставропольский"</small>
+
+
+
+
+        <label for="inn">Ввести по примеру:</label>
+        <input type="text" id="inn" name="inn">
+        <small class="hint">Пример: ИНН: 2635001184</small>
+
+
+        <label for="razgruzka">Ввести по примеру:</label>
+        <input type="text" id="razgruzka" name="razgruzka">
+        <small class="hint">Пример: 355037, Российская Федерация, Ставропольский край, г. Ставрополь, Доваторцев ул., д. 36</small>
+        <button type="submit">Сохранить данные о грузополучателе</button>
         <div style="text-align: center; margin-top: 10px;">
             <button onclick="window.history.back();">Назад</button>
         </div>
@@ -62,22 +123,25 @@
             // Создаем элемент для уведомлений
             const notification = $('<div id="notification"></div>').css({
                 'display': 'none', // Скрываем изначально
-                'position': 'absolute',
-                'top': '10px',
+                'position': 'fixed', // Фиксируем уведомление в видимой области экрана
+                'top': '20px', // Расположение по вертикали
                 'left': '50%',
-                'transform': 'translateX(-50%)',
+                'transform': 'translateX(-50%)', // Центрируем по горизонтали
                 'background-color': '#e0ffe0',  // Зелёный фон по умолчанию
                 'border': '1px solid #4caf50',    // Зелёная рамка
                 'padding': '10px',
                 'margin': '10px 0',
                 'border-radius': '5px',
-                'z-index': 1000
+                'z-index': 1000,
+                'max-width': '400px', // Ограничиваем максимальную ширину уведомления
+                'text-align': 'center' // Центрируем текст
             });
 
             $('body').prepend(notification); // Добавляем его в верхнюю часть страницы
 
             $('form').on('submit', function(event) {
-                // Убираем проверки
+                event.preventDefault(); // Отменяем стандартное поведение формы
+
                 // Отправка формы
                 $.ajax({
                     type: 'POST',
@@ -89,6 +153,8 @@
                             'background-color': '#e0ffe0',  // Зелёный фон
                             'border': '1px solid #4caf50'    // Зелёная рамка
                         });
+                        // Скрываем уведомление через 7 секунд
+                        setTimeout(() => notification.fadeOut(300), 7000);
                     },
                     error: function() {
                         notification.text('Произошла ошибка при сохранении данных.').css({
@@ -96,13 +162,13 @@
                             'background-color': '#ffe0e0',  // Красный фон
                             'border': '1px solid #f44336'   // Красная рамка
                         });
+                        // Скрываем уведомление через 4 секунд
+                        setTimeout(() => notification.fadeOut(300), 4000);
                     }
                 });
-
-                event.preventDefault(); // Отменяем стандартное поведение формы
             });
         });
-
         </script>
+
 </body>
 </html>

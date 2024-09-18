@@ -85,7 +85,18 @@ let trailers = [];
                         { label: 'Содер. Самат. Клеток, тыс/см3', name: `cell_content_${index + 1}` },
                         { label: 'Группа чистоты', name: `purity_group_${index + 1}` },
                         { label: 'Термоустойчивочть, группа', name: `heat_resistance_${index + 1}` },
-                        { label: 'Сорт', name: `grade_${index + 1}` }
+                        {
+                            label: 'Сорт',
+                            name: `grade_${index + 1}`,
+                            type: 'select',
+                            options: [
+                                { value: '', label: 'Сорт', disabled: true }, // Выбор по умолчанию
+                                { value: 'B/C', label: 'B/C' },
+                                { value: 'I', label: 'I' },
+                                { value: 'II', label: 'II' },
+                                { value: 'Не сортовое', label: 'Не сортовое' }
+                            ]
+                        }
                     ];
 
                     const attributesContainer = document.createElement('div');
@@ -95,12 +106,26 @@ let trailers = [];
                         const attrDiv = document.createElement('div');
                         attrDiv.className = 'attribute';
 
-                        const attrInput = document.createElement('input');
-                        attrInput.type = 'text';
-                        attrInput.name = attr.name;
-                        attrInput.placeholder = attr.label; // Подсказка в поле ввода
+                        if (attr.type === 'select') {
+                            const select = document.createElement('select');
+                            select.name = attr.name;
 
-                        attrDiv.appendChild(attrInput);
+                            attr.options.forEach(option => {
+                                const optionElement = document.createElement('option');
+                                optionElement.value = option.value;
+                                optionElement.textContent = option.label;
+                                select.appendChild(optionElement);
+                            });
+
+                            attrDiv.appendChild(select);
+                        } else {
+                            const attrInput = document.createElement('input');
+                            attrInput.type = 'text';
+                            attrInput.name = attr.name;
+                            attrInput.placeholder = attr.label; // Подсказка в поле ввода
+                            attrDiv.appendChild(attrInput);
+                        }
+
                         attributesContainer.appendChild(attrDiv); // Добавляем атрибут в контейнер
                     });
 

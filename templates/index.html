@@ -15,6 +15,29 @@
                 allowClear: true
             });
         });
+
+
+        $(document).ready(function() {
+            // Изначальные варианты для "Организация-владелец автотранспорта"
+            const originalOptions = `
+                <option value="">Выбрать:</option>
+                <option value="ИНН 263521442945,ИП Волосникова Ангелина Анатольевна, РФ Ставропольский край,г.Ставрополь,ул.Южной Заставы,17а,тел:+78652257535">
+                    ИНН 263521442945,ИП Волосникова Ангелина Анатольевна, РФ Ставропольский край,г.Ставрополь,ул.Южной Заставы,17а,тел:+78652257535
+                </option>
+            `;
+
+            // Обработчик изменения для "Вид перевозки"
+            $('#delivery_method').change(function() {
+                const selectedMethod = $(this).val();
+                if (selectedMethod === "Самовывоз") {
+                    // Очищаем и добавляем пустое значение в "Организация-владелец автотранспорта"
+                    $('#vladelec').html('<option value="">Выбрать...</option>');
+                } else {
+                    // Восстанавливаем оригинальные варианты
+                    $('#vladelec').html(originalOptions);
+                }
+            });
+        });
     </script>
 </head>
 <body>
@@ -93,10 +116,11 @@
     </select>
     <div id="sectionsContainer"></div> <!-- Контейнер для секций -->
 
-    <!--
-    <label for="physical_weight">Физический вес:</label>
-    <input type="text" id="physical_weight" name="physical_weight" readonly>
-    -->
+
+    <label for="physical_weight" hidden>Физический вес:</label>
+    <input type="text" id="physical_weight" name="physical_weight" readonly hidden>
+
+
 
     <label for="senders">Грузоотправитель:</label>
     <select id="senders" name="senders"  >
